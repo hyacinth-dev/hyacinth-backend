@@ -2,6 +2,9 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	apiV1 "hyacinth-backend/api/v1"
 	"hyacinth-backend/docs"
 	"hyacinth-backend/internal/handler"
@@ -9,9 +12,6 @@ import (
 	"hyacinth-backend/pkg/jwt"
 	"hyacinth-backend/pkg/log"
 	"hyacinth-backend/pkg/server/http"
-	"github.com/spf13/viper"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewHTTPServer(
@@ -62,6 +62,7 @@ func NewHTTPServer(
 		noStrictAuthRouter := v1.Group("/").Use(middleware.NoStrictAuth(jwt, logger))
 		{
 			noStrictAuthRouter.GET("/user", userHandler.GetProfile)
+			noStrictAuthRouter.GET("/usage", userHandler.GetUsage)
 		}
 
 		// Strict permission routing group

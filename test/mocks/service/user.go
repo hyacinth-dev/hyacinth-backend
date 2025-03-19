@@ -6,9 +6,9 @@ package mock_service
 
 import (
 	context "context"
+	v1 "hyacinth-backend/api/v1"
 	reflect "reflect"
 
-	v1 "hyacinth-backend/api/v1"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -48,6 +48,21 @@ func (m *MockUserService) GetProfile(ctx context.Context, userId string) (*v1.Ge
 func (mr *MockUserServiceMockRecorder) GetProfile(ctx, userId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockUserService)(nil).GetProfile), ctx, userId)
+}
+
+// GetUsage mocks base method.
+func (m *MockUserService) GetUsage(ctx context.Context, req *v1.GetUsageRequest) (*v1.GetUsageResponseData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUsage", ctx, req)
+	ret0, _ := ret[0].(*v1.GetUsageResponseData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUsage indicates an expected call of GetUsage.
+func (mr *MockUserServiceMockRecorder) GetUsage(ctx, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsage", reflect.TypeOf((*MockUserService)(nil).GetUsage), ctx, req)
 }
 
 // Login mocks base method.

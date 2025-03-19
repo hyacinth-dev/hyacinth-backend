@@ -6,9 +6,9 @@ package mock_repository
 
 import (
 	context "context"
+	model "hyacinth-backend/internal/model"
 	reflect "reflect"
 
-	model "hyacinth-backend/internal/model"
 	gomock "github.com/golang/mock/gomock"
 )
 

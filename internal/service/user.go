@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
+	"golang.org/x/crypto/bcrypt"
 	v1 "hyacinth-backend/api/v1"
 	"hyacinth-backend/internal/model"
 	"hyacinth-backend/internal/repository"
-	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
@@ -14,6 +14,7 @@ type UserService interface {
 	Login(ctx context.Context, req *v1.LoginRequest) (string, error)
 	GetProfile(ctx context.Context, userId string) (*v1.GetProfileResponseData, error)
 	UpdateProfile(ctx context.Context, userId string, req *v1.UpdateProfileRequest) error
+	GetUsage(ctx context.Context, req *v1.GetUsageRequest) (*v1.GetUsageResponseData, error)
 }
 
 func NewUserService(
@@ -112,4 +113,27 @@ func (s *userService) UpdateProfile(ctx context.Context, userId string, req *v1.
 	}
 
 	return nil
+}
+
+func (s *userService) GetUsage(ctx context.Context, req *v1.GetUsageRequest) (*v1.GetUsageResponseData, error) {
+	return &v1.GetUsageResponseData{
+			Usages: []v1.UsageData{
+				{
+					Date:  "2021-01-01",
+					Usage: 100},
+				{
+					Date:  "2021-01-02",
+					Usage: 200,
+				},
+				{
+					Date:  "2021-01-03",
+					Usage: 300,
+				},
+				{
+					Date:  "2021-01-04",
+					Usage: 400,
+				},
+			},
+		},
+		nil
 }

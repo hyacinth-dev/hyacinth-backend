@@ -1,11 +1,13 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"hyacinth-backend/api/v1"
+	v1 "hyacinth-backend/api/v1"
 	"hyacinth-backend/internal/service"
-	"go.uber.org/zap"
+	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type UserHandler struct {
@@ -125,4 +127,34 @@ func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
 	}
 
 	v1.HandleSuccess(ctx, nil)
+}
+
+// UpdateProfile godoc
+// @Summary 获取用量
+// @Schemes
+// @Description
+// @Tags 用户模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body v1.GetUsageRequest true "params"
+// @Success 200 {object} v1.Response
+// @Router /usage [get]
+func (h *UserHandler) GetUsage(ctx *gin.Context) {
+	// userId := GetUserIdFromCtx(ctx)
+	var req v1.GetUsageRequest
+	log.Printf("GetUsageRequest: %v", ctx.Request)
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		println("BadRequest")
+		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+		return
+	}
+
+	usage, err := h.userService.GetUsage(ctx, &req)
+	if err != nil {
+		v1.HandleError(ctx, http.StatusInternalServerError, v1.ErrInternalServerError, nil)
+		return
+	}
+
+	v1.HandleSuccess(ctx, usage)
 }
