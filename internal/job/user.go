@@ -28,7 +28,7 @@ type userJob struct {
 func (t userJob) KafkaConsumer(ctx context.Context) error {
 	// do something
 	for {
-		t.logger.Info("KafkaConsumer")
+		// t.logger.Info("KafkaConsumer")
 		time.Sleep(time.Second * 5)
 	}
 }
