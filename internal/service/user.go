@@ -69,24 +69,23 @@ func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) err
 }
 
 func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponseData, error) {
-	// user, err := s.userRepo.GetByEmail(ctx, req.Email)
-	// if err != nil || user == nil {
-	// 	return "", v1.ErrUnauthorized
-	// }
+	user, err := s.userRepo.GetByEmail(ctx, req.Email)
+	if err != nil || user == nil {
+		return nil, v1.ErrUnauthorized
+	}
 
-	// err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
-	// if err != nil {
-	// 	return "", err
-	// }
-	// token, err := s.jwt.GenToken(user.UserId, time.Now().Add(time.Hour*24*90))
-	token, err := s.jwt.GenToken(req.Email, time.Now().Add(time.Hour*24*90))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
+	if err != nil {
+		return nil, err
+	}
+	token, err := s.jwt.GenToken(user.UserId, time.Now().Add(time.Hour*24*90))
 	if err != nil {
 		return nil, err
 	}
 
 	return &v1.LoginResponseData{
 		AccessToken: token,
-		IsAdmin:     false,
+		IsAdmin:     user.IsAdmin,
 	}, nil
 }
 
