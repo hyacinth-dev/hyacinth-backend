@@ -1,13 +1,66 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
 	"hyacinth-backend/api/v1"
+	"hyacinth-backend/internal/repository"
 	"hyacinth-backend/pkg/jwt"
 	"hyacinth-backend/pkg/log"
-	"go.uber.org/zap"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
+
+func AdminAuth(j *jwt.JWT, logger *log.Logger, repo repository.UserRepository) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		tokenString := ctx.Request.Header.Get("Authorization")
+		if tokenString == "" {
+			logger.WithContext(ctx).Warn("No token", zap.Any("data", map[string]interface{}{
+				"url":    ctx.Request.URL,
+				"params": ctx.Params,
+			}))
+			v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
+			ctx.Abort()
+			return
+		}
+
+		claims, err := j.ParseToken(tokenString)
+		if err != nil {
+			logger.WithContext(ctx).Error("token error", zap.Any("data", map[string]interface{}{
+				"url":    ctx.Request.URL,
+				"params": ctx.Params,
+			}), zap.Error(err))
+			v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
+			ctx.Abort()
+			return
+		}
+
+		user, err := repo.GetByID(ctx, claims.UserId)
+		if err != nil {
+			logger.WithContext(ctx).Error("user not found", zap.Any("data", map[string]interface{}{
+				"url":    ctx.Request.URL,
+				"params": ctx.Params,
+			}), zap.Error(err))
+			v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
+			ctx.Abort()
+			return
+		}
+		
+		if !user.IsAdmin{
+			logger.WithContext(ctx).Error("user not admin", zap.Any("data", map[string]interface{}{
+				"url":    ctx.Request.URL,
+				"params": ctx.Params,
+			}), zap.Error(err))
+			v1.HandleError(ctx, http.StatusForbidden, v1.ErrUnauthorized, nil)
+			ctx.Abort()
+			return
+		}
+
+		ctx.Set("claims", claims)
+		recoveryLoggerFunc(ctx, logger)
+		ctx.Next()
+	}
+}
 
 func StrictAuth(j *jwt.JWT, logger *log.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {

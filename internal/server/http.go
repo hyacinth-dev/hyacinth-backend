@@ -1,17 +1,19 @@
 package server
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	apiV1 "hyacinth-backend/api/v1"
 	"hyacinth-backend/docs"
 	"hyacinth-backend/internal/handler"
 	"hyacinth-backend/internal/middleware"
+	"hyacinth-backend/internal/repository"
 	"hyacinth-backend/pkg/jwt"
 	"hyacinth-backend/pkg/log"
 	"hyacinth-backend/pkg/server/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewHTTPServer(
@@ -19,6 +21,7 @@ func NewHTTPServer(
 	conf *viper.Viper,
 	jwt *jwt.JWT,
 	userHandler *handler.UserHandler,
+	userRepo repository.UserRepository,
 ) *http.Server {
 	gin.SetMode(gin.DebugMode)
 	s := http.NewServer(
@@ -69,6 +72,11 @@ func NewHTTPServer(
 		strictAuthRouter := v1.Group("/").Use(middleware.StrictAuth(jwt, logger))
 		{
 			strictAuthRouter.PUT("/user", userHandler.UpdateProfile)
+		}
+
+		adminAuthRouter := v1.Group("/admin").Use(middleware.AdminAuth(jwt, logger, userRepo))
+		{
+			adminAuthRouter.GET("/user", func(ctx *gin.Context) {})
 		}
 	}
 
