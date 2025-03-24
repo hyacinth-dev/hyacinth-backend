@@ -7,6 +7,8 @@
 package wire
 
 import (
+	"github.com/google/wire"
+	"github.com/spf13/viper"
 	"hyacinth-backend/internal/handler"
 	"hyacinth-backend/internal/job"
 	"hyacinth-backend/internal/repository"
@@ -17,8 +19,6 @@ import (
 	"hyacinth-backend/pkg/log"
 	"hyacinth-backend/pkg/server/http"
 	"hyacinth-backend/pkg/sid"
-	"github.com/google/wire"
-	"github.com/spf13/viper"
 )
 
 // Injectors from wire.go:

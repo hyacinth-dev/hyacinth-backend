@@ -11,6 +11,7 @@ type LoginRequest struct {
 }
 type LoginResponseData struct {
 	AccessToken string `json:"accessToken"`
+	IsAdmin     bool   `json:"isAdmin"`
 }
 type LoginResponse struct {
 	Response

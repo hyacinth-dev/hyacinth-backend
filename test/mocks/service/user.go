@@ -66,10 +66,10 @@ func (mr *MockUserServiceMockRecorder) GetUsage(ctx, req interface{}) *gomock.Ca
 }
 
 // Login mocks base method.
-func (m *MockUserService) Login(ctx context.Context, req *v1.LoginRequest) (string, error) {
+func (m *MockUserService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponseData, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Login", ctx, req)
-	ret0, _ := ret[0].(string)
+	ret0, _ := ret[0].(*v1.LoginResponseData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -65,14 +65,12 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	token, err := h.userService.Login(ctx, &req)
+	response, err := h.userService.Login(ctx, &req)
 	if err != nil {
 		v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
 		return
 	}
-	v1.HandleSuccess(ctx, v1.LoginResponseData{
-		AccessToken: token,
-	})
+	v1.HandleSuccess(ctx, response)
 }
 
 // GetProfile godoc

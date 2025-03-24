@@ -7,14 +7,14 @@
 package wire
 
 import (
+	"github.com/google/wire"
+	"github.com/spf13/viper"
 	"hyacinth-backend/internal/repository"
 	"hyacinth-backend/internal/server"
 	"hyacinth-backend/internal/task"
 	"hyacinth-backend/pkg/app"
 	"hyacinth-backend/pkg/log"
 	"hyacinth-backend/pkg/sid"
-	"github.com/google/wire"
-	"github.com/spf13/viper"
 )
 
 // Injectors from wire.go:

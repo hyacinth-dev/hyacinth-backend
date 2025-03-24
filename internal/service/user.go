@@ -11,7 +11,7 @@ import (
 
 type UserService interface {
 	Register(ctx context.Context, req *v1.RegisterRequest) error
-	Login(ctx context.Context, req *v1.LoginRequest) (string, error)
+	Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponseData, error)
 	GetProfile(ctx context.Context, userId string) (*v1.GetProfileResponseData, error)
 	UpdateProfile(ctx context.Context, userId string, req *v1.UpdateProfileRequest) error
 	GetUsage(ctx context.Context, req *v1.GetUsageRequest) (*v1.GetUsageResponseData, error)
@@ -68,7 +68,7 @@ func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) err
 	return err
 }
 
-func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (string, error) {
+func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponseData, error) {
 	// user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	// if err != nil || user == nil {
 	// 	return "", v1.ErrUnauthorized
@@ -81,10 +81,13 @@ func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (string, 
 	// token, err := s.jwt.GenToken(user.UserId, time.Now().Add(time.Hour*24*90))
 	token, err := s.jwt.GenToken(req.Email, time.Now().Add(time.Hour*24*90))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return token, nil
+	return &v1.LoginResponseData{
+		AccessToken: token,
+		IsAdmin:     false,
+	}, nil
 }
 
 func (s *userService) GetProfile(ctx context.Context, userId string) (*v1.GetProfileResponseData, error) {
