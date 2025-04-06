@@ -1,3 +1,7 @@
+// 此模块定义了用户表的结构体
+// 以及与数据库交互的相关方法
+// 该模块使用 GORM 作为 ORM 框架
+
 package model
 
 import (
@@ -11,7 +15,7 @@ type User struct {
 	Nickname  string `gorm:"not null"`
 	Password  string `gorm:"not null"`
 	Email     string `gorm:"not null"`
-	IsAdmin   bool `gorm:"not null"`
+	IsAdmin   bool   `gorm:"not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
