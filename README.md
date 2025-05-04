@@ -1,18 +1,21 @@
-# Nunu — A CLI tool for building Go applications.
+## 待完成:
 
-Nunu is a scaffolding tool for building Go applications. Its name comes from a game character in League of Legends, a little boy riding on the shoulders of a Yeti. Just like Nunu, this project stands on the shoulders of giants, as it is built upon a combination of popular libraries from the Go ecosystem. This combination allows you to quickly build efficient and reliable applications.
+1. 还没去看数据库连接和迁移部分，usage和vnet的repository未连接
 
-[简体中文介绍](https://github.com/go-nunu/nunu/blob/main/README_zh.md)
+## 内容总结：
 
-![Nunu](https://github.com/go-nunu/nunu/blob/main/.github/assets/banner.png)
+1. Model.User：添加Username项
+2. 修改RegisterRequest，添加Username和NickName项，均为非空
+3. 将LoginRequest的email改成EmailOrUsername来实现邮箱或用户名登录
+4. Service.User：Login添加用户名登录方式（优先级低于邮箱登录），未实现邮箱检测，按邮箱-用户名顺序查询数据库
+5. 新增Usage相关内容：Model.Usage，Repository.Usage，实现service层的GetUsage（按近30天，近7天，近12月）其中GetUsageRequest的range设定为“month”、“30days”或“7days”，如果为month返回数据列表为每月总量，否则为日总量
+6. 实现vnet相关内容，其中model.vnet内容为get vnet的Response返回内容加上UserId
+7. 没有对DELETE vnet时删除内容不存在做特殊处理
+8. admin和user功能相似的部分直接复制过去修改的代码，考虑到拓展性没有直接调用
+9. 最后的/user/vnet/<USERID>/<VNETID>是不是写错了，是admin吧
+10. admin的vnet的删改部分没有用到USERID，直接用的VNETID找
 
-## Documentation
-* [User Guide](https://github.com/go-nunu/nunu/blob/main/docs/en/guide.md)
-* [Architecture](https://github.com/go-nunu/nunu/blob/main/docs/en/architecture.md)
-* [Getting Started Tutorial](https://github.com/go-nunu/nunu/blob/main/docs/en/tutorial.md)
-* [Unit Testing](https://github.com/go-nunu/nunu/blob/main/docs/en/unit_testing.md)
+## 奇怪的问题：
 
-
-## License
-
-Nunu is released under the MIT License. For more information, see the [LICENSE](LICENSE) file.
+1. 邮箱和用户名：
+   例子：A用户的username叫做“a@b.com”，而a@b.com刚好是B用户的注册邮箱怎么处理
