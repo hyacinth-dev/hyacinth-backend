@@ -11,14 +11,14 @@ import (
 	"os"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/crypto/bcrypt"
 	"hyacinth-backend/internal/model"
 	"hyacinth-backend/internal/service"
 	"hyacinth-backend/pkg/config"
 	"hyacinth-backend/pkg/log"
 	"hyacinth-backend/pkg/sid"
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var (

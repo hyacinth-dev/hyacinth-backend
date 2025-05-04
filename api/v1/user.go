@@ -5,13 +5,17 @@
 package v1
 
 type RegisterRequest struct {
-	Email    string `json:"email" binding:"required,email" example:"1234@gmail.com"`
+	Email string `json:"email" binding:"required,email" example:"1234@gmail.com"`
+	//添加username,nickname
+	Username string `json:"username" example:"alan" binding:"required"`
+	Nickname string `json:"nickname" example:"alan" binding:"required"`
 	Password string `json:"password" binding:"required" example:"123456"`
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email" example:"1234@gmail.com"`
-	Password string `json:"password" binding:"required" example:"123456"`
+	//改成email或username
+	EmailOrUsername string `json:"emailOrUsername" binding:"required" example:"alan"`
+	Password        string `json:"password" binding:"required" example:"123456"`
 }
 type LoginResponseData struct {
 	AccessToken string `json:"accessToken"`
@@ -40,8 +44,8 @@ type GetUsageRequest struct {
 }
 
 type UsageData struct {
-	Date  string `json:"date"`
-	Usage int    `json:"usage"`
+	DateOrMonth string `json:"dateOrMonth" example:"2023-10"`
+	Usage       int    `json:"usage"`
 }
 
 type GetUsageResponseData struct {
@@ -51,4 +55,42 @@ type GetUsageResponseData struct {
 type GetUsageResponse struct {
 	Response
 	Data GetUsageResponseData
+}
+type VNetData struct {
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Enabled      bool   `json:"enabled"`
+	Token        string `json:"token"`
+	Password     string `json:"password"`
+	IpRange      string `json:"ipRange"`
+	EnableDHCP   bool   `json:"enableDHCP"`
+	ClientsLimit int    `json:"clientsLimit"`
+	Clients      int    `json:"clients"`
+}
+
+type GetVNetResponseData struct {
+	Networks []VNetData `json:"networks"`
+}
+
+type GetVNetResponse struct {
+	Response
+	Data GetVNetResponseData `json:"data"`
+}
+type UpdateVNetRequest struct {
+	Name         string `json:"name" binding:"required"`
+	Enabled      bool   `json:"enabled" binding:"required"`
+	Token        string `json:"token" binding:"required"`
+	Password     string `json:"password" binding:"required"`
+	IpRange      string `json:"ipRange" binding:"required"`
+	EnableDHCP   bool   `json:"enableDHCP" binding:"required"`
+	ClientsLimit int    `json:"clientsLimit" binding:"required"`
+}
+type CreateVNetRequest struct {
+	Name         string `json:"name"`
+	Enabled      bool   `json:"enabled"`
+	Token        string `json:"token"`
+	Password     string `json:"password"`
+	IpRange      string `json:"ipRange"`
+	EnableDHCP   bool   `json:"enableDHCP"`
+	ClientsLimit int    `json:"clientsLimit"`
 }

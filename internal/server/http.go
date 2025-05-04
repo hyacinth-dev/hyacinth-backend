@@ -28,6 +28,7 @@ func NewHTTPServer(
 	conf *viper.Viper,
 	jwt *jwt.JWT,
 	userHandler *handler.UserHandler,
+	adminHandler *handler.AdminHandler,
 	userRepo repository.UserRepository,
 ) *http.Server {
 	gin.SetMode(gin.DebugMode)
@@ -72,18 +73,27 @@ func NewHTTPServer(
 		noStrictAuthRouter := v1.Group("/").Use(middleware.NoStrictAuth(jwt, logger))
 		{
 			noStrictAuthRouter.GET("/user", userHandler.GetProfile)
-			noStrictAuthRouter.GET("/usage", userHandler.GetUsage)
+			noStrictAuthRouter.GET("/user/usage", userHandler.GetUsage)
+			noStrictAuthRouter.GET("/user/vnet", userHandler.GetVNet)
+			noStrictAuthRouter.POST("/user/vnet", userHandler.CreateVNet)
+			noStrictAuthRouter.DELETE("/user/vnet/:id", userHandler.DeleteVNet)
 		}
-
 		// Strict permission routing group
 		strictAuthRouter := v1.Group("/").Use(middleware.StrictAuth(jwt, logger))
 		{
 			strictAuthRouter.PUT("/user", userHandler.UpdateProfile)
+			strictAuthRouter.PUT("/user/vnet/:VNETID", userHandler.UpdateVNet)
 		}
-
 		adminAuthRouter := v1.Group("/admin").Use(middleware.AdminAuth(jwt, logger, userRepo))
 		{
-			adminAuthRouter.GET("/user", func(ctx *gin.Context) {})
+			//adminAuthRouter.GET("/user", func(ctx *gin.Context) {})
+			adminAuthRouter.GET("/usage/overview", adminHandler.GetTotalUsage)
+			adminAuthRouter.GET("/usage/page/:page", adminHandler.GetUsagePage)
+			adminAuthRouter.GET("/usage/:id", adminHandler.GetUsage)
+			adminAuthRouter.GET("/vnet", adminHandler.AdminGetVNet)
+			adminAuthRouter.POST("/vnet/:USERID", adminHandler.AdminCreateVNet)
+			adminAuthRouter.PUT("/vnet/:USERID/:VNETID", adminHandler.AdminUpdateVNet)
+			adminAuthRouter.DELETE("/vnet/:USERID/:VNETID", adminHandler.AdminDeleteVNet)
 		}
 	}
 

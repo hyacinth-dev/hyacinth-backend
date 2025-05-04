@@ -1,16 +1,14 @@
 // 在此模块中定义请求的入口点
 // 主要职责是接受请求、解析请求参数、验证请求合法性、调用服务层的函数、处理返回结果
-
 package handler
 
 import (
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	v1 "hyacinth-backend/api/v1"
 	"hyacinth-backend/internal/service"
 	"log"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 )
 
 type UserHandler struct {
@@ -142,7 +140,7 @@ func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
 // @Success 200 {object} v1.Response
 // @Router /usage [get]
 func (h *UserHandler) GetUsage(ctx *gin.Context) {
-	// userId := GetUserIdFromCtx(ctx)
+	userId := GetUserIdFromCtx(ctx)
 	var req v1.GetUsageRequest
 	log.Printf("GetUsageRequest: %v", ctx.Request)
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -151,11 +149,71 @@ func (h *UserHandler) GetUsage(ctx *gin.Context) {
 		return
 	}
 
-	usage, err := h.userService.GetUsage(ctx, &req)
+	usage, err := h.userService.GetUsage(ctx, userId, &req)
 	if err != nil {
 		v1.HandleError(ctx, http.StatusInternalServerError, v1.ErrInternalServerError, nil)
 		return
 	}
 
 	v1.HandleSuccess(ctx, usage)
+}
+
+func (h *UserHandler) GetVNet(ctx *gin.Context) {
+	userId := GetUserIdFromCtx(ctx)
+	log.Printf("GetVNetRequest: %v", ctx.Request)
+
+	vnet, err := h.userService.GetVNet(ctx, userId)
+	if err != nil {
+		v1.HandleError(ctx, http.StatusInternalServerError, v1.ErrInternalServerError, nil)
+		return
+	}
+
+	v1.HandleSuccess(ctx, vnet)
+}
+
+func (h *UserHandler) UpdateVNet(ctx *gin.Context) {
+	vnetID := ctx.Param("VNETID")
+
+	var req v1.UpdateVNetRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+		return
+	}
+
+	err := h.userService.UpdateVNet(ctx, vnetID, &req)
+	if err != nil {
+		v1.HandleError(ctx, http.StatusInternalServerError, v1.ErrInternalServerError, nil)
+		return
+	}
+
+	v1.HandleSuccess(ctx, nil)
+}
+
+func (h *UserHandler) CreateVNet(ctx *gin.Context) {
+	userId := GetUserIdFromCtx(ctx)
+
+	var req v1.CreateVNetRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+		return
+	}
+
+	if err := h.userService.CreateVNet(ctx, userId, &req); err != nil {
+		h.logger.WithContext(ctx).Error("userService.CreateVNet error", zap.Error(err))
+		v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
+		return
+	}
+
+	v1.HandleSuccess(ctx, nil)
+}
+
+func (h *UserHandler) DeleteVNet(ctx *gin.Context) {
+	vnetID := ctx.Param("id")
+
+	if err := h.userService.DeleteVNet(ctx, vnetID); err != nil {
+		v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
+		return
+	}
+
+	v1.HandleSuccess(ctx, nil)
 }

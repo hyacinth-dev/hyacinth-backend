@@ -19,32 +19,51 @@ type UserService interface {
 	Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponseData, error)
 	GetProfile(ctx context.Context, userId string) (*v1.GetProfileResponseData, error)
 	UpdateProfile(ctx context.Context, userId string, req *v1.UpdateProfileRequest) error
-	GetUsage(ctx context.Context, req *v1.GetUsageRequest) (*v1.GetUsageResponseData, error)
+	GetUsage(ctx context.Context, userId string, req *v1.GetUsageRequest) (*v1.GetUsageResponseData, error)
+	GetVNet(ctx context.Context, userId string) (*v1.GetVNetResponseData, error)
+	UpdateVNet(ctx context.Context, vnetID string, req *v1.UpdateVNetRequest) error
+	CreateVNet(ctx context.Context, userId string, req *v1.CreateVNetRequest) error
+	DeleteVNet(ctx context.Context, vnetID string) error
 }
 
 func NewUserService(
 	service *Service,
 	userRepo repository.UserRepository,
+	usageRepo repository.UsageRepository,
+	venetRepo repository.VNetRepository,
 ) UserService {
 	return &userService{
-		userRepo: userRepo,
-		Service:  service,
+		userRepo:  userRepo,
+		usageRepo: usageRepo,
+		vnetRepo:  venetRepo,
+		Service:   service,
 	}
 }
 
 type userService struct {
-	userRepo repository.UserRepository
+	userRepo  repository.UserRepository
+	usageRepo repository.UsageRepository
+	vnetRepo  repository.VNetRepository
 	*Service
 }
 
 func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) error {
-	// check username
+	// check email
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
 		return v1.ErrInternalServerError
 	}
-	if err == nil && user != nil {
+	if user != nil {
 		return v1.ErrEmailAlreadyUse
+	}
+
+	// check username
+	user, err = s.userRepo.GetByUsername(ctx, req.Username)
+	if err != nil {
+		return v1.ErrInternalServerError
+	}
+	if user != nil {
+		return v1.ErrUsernameAlreadyUse
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -58,6 +77,8 @@ func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) err
 	}
 	user = &model.User{
 		UserId:   userId,
+		Username: req.Username,
+		Nickname: req.Nickname,
 		Email:    req.Email,
 		Password: string(hashedPassword),
 	}
@@ -74,11 +95,15 @@ func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) err
 }
 
 func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponseData, error) {
-	user, err := s.userRepo.GetByEmail(ctx, req.Email)
-	if err != nil || user == nil {
+	user, err := s.userRepo.GetByEmail(ctx, req.EmailOrUsername)
+	if err == nil && user == nil {
+		user, err = s.userRepo.GetByUsername(ctx, req.EmailOrUsername)
+	}
+	if err != nil {
+		return nil, v1.ErrInternalServerError
+	} else if user == nil {
 		return nil, v1.ErrUnauthorized
 	}
-
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
 		return nil, err
@@ -122,25 +147,126 @@ func (s *userService) UpdateProfile(ctx context.Context, userId string, req *v1.
 	return nil
 }
 
-func (s *userService) GetUsage(ctx context.Context, req *v1.GetUsageRequest) (*v1.GetUsageResponseData, error) {
-	return &v1.GetUsageResponseData{
-			Usages: []v1.UsageData{
-				{
-					Date:  "2021-01-01",
-					Usage: 100},
-				{
-					Date:  "2021-01-02",
-					Usage: 200,
-				},
-				{
-					Date:  "2021-01-03",
-					Usage: 300,
-				},
-				{
-					Date:  "2021-01-04",
-					Usage: 400,
-				},
-			},
-		},
-		nil
+func (s *userService) GetUsage(ctx context.Context, userId string, req *v1.GetUsageRequest) (*v1.GetUsageResponseData, error) {
+
+	var startDate, endDate string
+	switch req.Range {
+	case "month":
+		// 获取最近12个月的数据
+		endDate = time.Now().Format("2006-01-02")
+		startDate = time.Now().AddDate(0, -12, 0).Format("2006-01-02")
+	case "30days":
+		// 获取最近30天的数据
+		endDate = time.Now().Format("2006-01-02")
+		startDate = time.Now().AddDate(0, 0, -30).Format("2006-01-02")
+	case "7days":
+		// 获取最近7天的数据
+		endDate = time.Now().Format("2006-01-02")
+		startDate = time.Now().AddDate(0, 0, -7).Format("2006-01-02")
+	default:
+		return nil, v1.ErrBadRequest
+	}
+
+	usages, err := s.usageRepo.GetUsageByUserAndRange(ctx, userId, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+
+	var responseData v1.GetUsageResponseData
+	if req.Range == "month" {
+		// 按月聚合流量数据
+		usageByMonth := make(map[string]int)
+		for _, usage := range usages {
+			month := usage.Date[:7] // 取年月部分
+			usageByMonth[month] += usage.Usage
+		}
+
+		for month, usage := range usageByMonth {
+			responseData.Usages = append(responseData.Usages, v1.UsageData{
+				DateOrMonth: month,
+				Usage:       usage,
+			})
+		}
+	} else {
+		// 按天返回数据
+		for _, usage := range usages {
+			responseData.Usages = append(responseData.Usages, v1.UsageData{
+				DateOrMonth: usage.Date[5:],
+				Usage:       usage.Usage,
+			})
+		}
+	}
+
+	return &responseData, nil
+}
+
+func (s *userService) GetVNet(ctx context.Context, userId string) (*v1.GetVNetResponseData, error) {
+	vnets, err := s.vnetRepo.GetAllByUser(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &v1.GetVNetResponseData{}
+	for _, v := range vnets {
+		resp.Networks = append(resp.Networks, v1.VNetData{
+			ID:           v.ID,
+			Name:         v.Name,
+			Enabled:      v.Enabled,
+			Token:        v.Token,
+			Password:     v.Password,
+			IpRange:      v.IpRange,
+			EnableDHCP:   v.EnableDHCP,
+			ClientsLimit: v.ClientsLimit,
+			Clients:      v.Clients,
+		})
+	}
+	return resp, nil
+}
+
+func (s *userService) UpdateVNet(ctx context.Context, vnetID string, req *v1.UpdateVNetRequest) error {
+	vnet, err := s.vnetRepo.GetByID(ctx, vnetID)
+	if err != nil {
+		return err
+	}
+
+	vnet.Name = req.Name
+	vnet.Enabled = req.Enabled
+	vnet.Token = req.Token
+	vnet.Password = req.Password
+	vnet.IpRange = req.IpRange
+	vnet.EnableDHCP = req.EnableDHCP
+	vnet.ClientsLimit = req.ClientsLimit
+
+	if err = s.vnetRepo.Update(ctx, vnet); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *userService) CreateVNet(ctx context.Context, userId string, req *v1.CreateVNetRequest) error {
+	vnet := &model.VNet{
+		Name:         req.Name,
+		Enabled:      req.Enabled,
+		Token:        req.Token,
+		Password:     req.Password,
+		IpRange:      req.IpRange,
+		EnableDHCP:   req.EnableDHCP,
+		ClientsLimit: req.ClientsLimit,
+		UserId:       userId,
+	}
+
+	if err := s.vnetRepo.Create(ctx, vnet); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *userService) DeleteVNet(ctx context.Context, vnetID string) error {
+	if err := s.vnetRepo.Delete(ctx, vnetID); err != nil {
+		return err
+	}
+
+	return nil
 }
