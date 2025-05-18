@@ -78,9 +78,10 @@ func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) err
 	user = &model.User{
 		UserId:   userId,
 		Username: req.Username,
-		Nickname: req.Nickname,
 		Email:    req.Email,
 		Password: string(hashedPassword),
+		IsAdmin:  false, // 默认非管理员
+		IsVip:    false, // 默认非VIP
 	}
 	// Transaction demo
 	err = s.tm.Transaction(ctx, func(ctx context.Context) error {
@@ -127,7 +128,10 @@ func (s *userService) GetProfile(ctx context.Context, userId string) (*v1.GetPro
 
 	return &v1.GetProfileResponseData{
 		UserId:   user.UserId,
-		Nickname: user.Nickname,
+		Username: user.Username,
+		Email:    user.Email,
+		IsAdmin:  user.IsAdmin,
+		IsVip:    user.IsVip,
 	}, nil
 }
 
@@ -138,7 +142,9 @@ func (s *userService) UpdateProfile(ctx context.Context, userId string, req *v1.
 	}
 
 	user.Email = req.Email
-	user.Nickname = req.Nickname
+	user.Username = req.Username
+	user.IsVip = req.IsVip
+	user.IsAdmin = req.IsAdmin
 
 	if err = s.userRepo.Update(ctx, user); err != nil {
 		return err

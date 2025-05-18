@@ -5,10 +5,8 @@
 package v1
 
 type RegisterRequest struct {
-	Email string `json:"email" binding:"required,email" example:"1234@gmail.com"`
-	//添加username,nickname
+	Email    string `json:"email" binding:"required,email" example:"1234@gmail.com"`
 	Username string `json:"username" example:"alan" binding:"required"`
-	Nickname string `json:"nickname" example:"alan"`
 	Password string `json:"password" binding:"required" example:"123456"`
 }
 
@@ -27,12 +25,17 @@ type LoginResponse struct {
 }
 
 type UpdateProfileRequest struct {
-	Nickname string `json:"nickname" example:"alan"`
-	Email    string `json:"email" binding:"required,email" example:"1234@gmail.com"`
+	Username string `json:"username" example:"alan"`
+	Email    string `json:"email" example:"alan@gmail.com"`
+	IsVip    bool   `json:"isVip"`
+	IsAdmin  bool   `json:"isAdmin"`
 }
 type GetProfileResponseData struct {
 	UserId   string `json:"userId"`
-	Nickname string `json:"nickname" example:"alan"`
+	Username string `json:"username" example:"alan"`
+	Email    string `json:"email" example:"alan@gmail.com"`
+	IsVip    bool   `json:"isVip"`
+	IsAdmin  bool   `json:"isAdmin"`
 }
 type GetProfileResponse struct {
 	Response

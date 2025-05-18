@@ -13,10 +13,10 @@ type User struct {
 	Id        uint   `gorm:"primarykey"`
 	UserId    string `gorm:"unique;not null"`
 	Username  string `gorm:"unique;not null"`
-	Nickname  string `gorm:"not null"`
 	Password  string `gorm:"not null"`
 	Email     string `gorm:"not null"`
 	IsAdmin   bool   `gorm:"not null"`
+	IsVip     bool   `gorm:"not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
