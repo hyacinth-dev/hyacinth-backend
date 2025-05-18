@@ -11,4 +11,5 @@ var (
 	// more biz errors
 	ErrEmailAlreadyUse    = newError(1001, "The email is already in use.")
 	ErrUsernameAlreadyUse = newError(1001, "The username is already in use.")
+	ErrVNetAlreadyExists  = newError(1001, "The VNet name(Id) is already in use.")
 )

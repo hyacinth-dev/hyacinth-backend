@@ -11,19 +11,25 @@ security:
     key: QQYnRFerJTSEcrfB89fw8prOaObmrch8
 data:
   db:
-    user:
-      driver: sqlite
-      dsn: storage/nunu-test.db?_busy_timeout=5000
-  #    user:
-  #      driver: mysql
-  #      dsn: root:123456@tcp(127.0.0.1:3380)/user?charset=utf8mb4&parseTime=True&loc=Local
-  #    user:
+#    user:
+#      driver: sqlite
+#      dsn: storage/nunu-test.db?_busy_timeout=5000
+      users:
+        driver: mysql
+        dsn: easytier:WnwRfi46DYnKCLSf@tcp(175.178.240.228:33060)/users?charset=utf8mb4&parseTime=True&loc=Local
+      usage:
+        driver: mysql
+        dsn: easytier:WnwRfi46DYnKCLSf@tcp(175.178.240.228:33060)/usage?charset=utf8mb4&parseTime=True&loc=Local
+      vnet:
+        driver: mysql
+        dsn: easytier:WnwRfi46DYnKCLSf@tcp(175.178.240.228:33060)/vnet?charset=utf8mb4&parseTime=True&loc=Local
+#    user:
   #      driver: postgres
   #      dsn: host=localhost user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai
   redis:
     addr: 127.0.0.1:6350
     password: ""
-    db: 0
+    db: 0s
     read_timeout: 0.2s
     write_timeout: 0.2s
 

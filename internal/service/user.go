@@ -178,7 +178,7 @@ func (s *userService) GetUsage(ctx context.Context, userId string, req *v1.GetUs
 		usageByMonth := make(map[string]int)
 		for _, usage := range usages {
 			month := usage.Date[:7] // 取年月部分
-			usageByMonth[month] += usage.Usage
+			usageByMonth[month] += usage.UsageCount
 		}
 
 		for month, usage := range usageByMonth {
@@ -192,7 +192,7 @@ func (s *userService) GetUsage(ctx context.Context, userId string, req *v1.GetUs
 		for _, usage := range usages {
 			responseData.Usages = append(responseData.Usages, v1.UsageData{
 				DateOrMonth: usage.Date[5:],
-				Usage:       usage.Usage,
+				Usage:       usage.UsageCount,
 			})
 		}
 	}
@@ -246,6 +246,7 @@ func (s *userService) UpdateVNet(ctx context.Context, vnetID string, req *v1.Upd
 
 func (s *userService) CreateVNet(ctx context.Context, userId string, req *v1.CreateVNetRequest) error {
 	vnet := &model.VNet{
+		ID:           req.Name,
 		Name:         req.Name,
 		Enabled:      req.Enabled,
 		Token:        req.Token,
@@ -256,8 +257,27 @@ func (s *userService) CreateVNet(ctx context.Context, userId string, req *v1.Cre
 		UserId:       userId,
 	}
 
-	if err := s.vnetRepo.Create(ctx, vnet); err != nil {
-		return err
+	// 检测id是否重名
+	existingVnet, err := s.vnetRepo.GetByID(ctx, vnet.ID)
+	if err != nil {
+		return v1.ErrInternalServerError
+	}
+	if existingVnet != nil {
+		return v1.ErrVNetAlreadyExists
+	}
+	// 恢复软删除的vnet，避免create重复id报错
+	deletedVnet, err := s.vnetRepo.GetByIDWithDeleted(ctx, vnet.ID)
+	if err != nil {
+		return v1.ErrInternalServerError
+	}
+	if deletedVnet != nil {
+		if err = s.vnetRepo.Update(ctx, vnet); err != nil {
+			return err
+		}
+	} else {
+		if err = s.vnetRepo.Create(ctx, vnet); err != nil {
+			return err
+		}
 	}
 
 	return nil

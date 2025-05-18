@@ -15,7 +15,6 @@ type UserUsageData struct {
 	NumNetworks int    `json:"numNetworks"`
 	Usage       int    `json:"usage"`
 }
-
 type UsagePageItem struct {
 	UserID      string `json:"userId"`
 	UserName    string `json:"userName"`
@@ -24,20 +23,33 @@ type UsagePageItem struct {
 }
 
 type GetUsagePageResponseData struct {
-	Items []UsagePageItem `json:"items"`
+	Items     []UsagePageItem `json:"items"`
+	PageCount int             `json:"pageCount"`
 }
 
 type GetUsagePageResponse struct {
 	Response
 	Data GetUsagePageResponseData `json:"data"`
 }
+
+type AdminVNetData struct {
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Enabled      bool   `json:"enabled"`
+	Token        string `json:"token"`
+	Password     string `json:"password"`
+	IpRange      string `json:"ipRange"`
+	EnableDHCP   bool   `json:"enableDHCP"`
+	ClientsLimit int    `json:"clientsLimit"`
+	Clients      int    `json:"clients"`
+	UserID       string `json:"userId"`
+	UserName     string `json:"userName"`
+}
 type AdminGetVNetRequest struct {
-	UserID int `json:"userId" binding:"required"`
+	UserID string `json:"userId" binding:"required"`
 }
 type AdminGetVNetResponseData struct {
-	Networks []VNetData `json:"networks"`
-	UserID   string     `json:"userId"`
-	Username string     `json:"userName"`
+	Networks []AdminVNetData `json:"networks"`
 }
 
 type AdminGetVNetResponse struct {

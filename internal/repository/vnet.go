@@ -15,6 +15,7 @@ type VNetRepository interface {
 	Update(ctx context.Context, vnet *model.VNet) error
 	Create(ctx context.Context, vnet *model.VNet) error
 	Delete(ctx context.Context, vnetID string) error
+	GetByIDWithDeleted(ctx context.Context, vnetID string) (*model.VNet, error)
 }
 
 type vnetRepository struct {
@@ -44,6 +45,17 @@ func (r *vnetRepository) GetAll(ctx context.Context) ([]model.VNet, error) {
 func (r *vnetRepository) GetByID(ctx context.Context, vnetID string) (*model.VNet, error) {
 	var vnet model.VNet
 	if err := r.DB(ctx).Where("id = ?", vnetID).First(&vnet).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, v1.ErrNotFound
+		}
+		return nil, err
+	}
+	return &vnet, nil
+}
+
+func (r *vnetRepository) GetByIDWithDeleted(ctx context.Context, vnetID string) (*model.VNet, error) {
+	var vnet model.VNet
+	if err := r.DB(ctx).Unscoped().Where("id = ?", vnetID).First(&vnet).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, v1.ErrNotFound
 		}

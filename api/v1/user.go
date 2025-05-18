@@ -8,7 +8,7 @@ type RegisterRequest struct {
 	Email string `json:"email" binding:"required,email" example:"1234@gmail.com"`
 	//添加username,nickname
 	Username string `json:"username" example:"alan" binding:"required"`
-	Nickname string `json:"nickname" example:"alan" binding:"required"`
+	Nickname string `json:"nickname" example:"alan"`
 	Password string `json:"password" binding:"required" example:"123456"`
 }
 

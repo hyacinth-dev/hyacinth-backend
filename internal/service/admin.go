@@ -6,6 +6,7 @@ import (
 	v1 "hyacinth-backend/api/v1"
 	"hyacinth-backend/internal/model"
 	"hyacinth-backend/internal/repository"
+	"log"
 	"strconv"
 	"time"
 )
@@ -54,6 +55,11 @@ func (s *adminService) GetUsagePage(ctx context.Context, page string, pageSize i
 	if err != nil {
 		return nil, fmt.Errorf("invalid page value: %v", err)
 	}
+	// 获取总页数
+	totalCount, err := s.userRepo.CountAllUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	offset := (pageInt - 1) * pageSize
 
@@ -84,7 +90,7 @@ func (s *adminService) GetUsagePage(ctx context.Context, page string, pageSize i
 		})
 	}
 
-	return &v1.GetUsagePageResponseData{Items: results}, nil
+	return &v1.GetUsagePageResponseData{Items: results, PageCount: (totalCount + pageSize - 1) / pageSize}, nil
 }
 
 func (s *adminService) GetUsage(ctx context.Context, userId string, req *v1.GetUsageRequest) (*v1.GetUsageResponseData, error) {
@@ -118,7 +124,7 @@ func (s *adminService) GetUsage(ctx context.Context, userId string, req *v1.GetU
 		usageByMonth := make(map[string]int)
 		for _, usage := range usages {
 			month := usage.Date[:7] // 取年月部分
-			usageByMonth[month] += usage.Usage
+			usageByMonth[month] += usage.UsageCount
 		}
 
 		for month, usage := range usageByMonth {
@@ -132,7 +138,7 @@ func (s *adminService) GetUsage(ctx context.Context, userId string, req *v1.GetU
 		for _, usage := range usages {
 			responseData.Usages = append(responseData.Usages, v1.UsageData{
 				DateOrMonth: usage.Date[5:],
-				Usage:       usage.Usage,
+				Usage:       usage.UsageCount,
 			})
 		}
 	}
@@ -142,29 +148,61 @@ func (s *adminService) GetUsage(ctx context.Context, userId string, req *v1.GetU
 
 func (s *adminService) AdminGetVNet(ctx context.Context, req *v1.AdminGetVNetRequest) (*v1.AdminGetVNetResponseData, error) {
 	var (
-		vnets    []model.VNet
-		username string
-		err      error
+		vnets []model.VNet
+		err   error
 	)
 	userId := req.UserID
-	if userId == 0 {
+	if userId == "0" {
 		vnets, err = s.vnetRepo.GetAll(ctx)
-		user, err := s.userRepo.GetByID(ctx, strconv.Itoa(userId))
-		if err != nil {
-			return nil, v1.ErrInternalServerError
-		}
-		username = user.Username
 	} else {
-		vnets, err = s.vnetRepo.GetAllByUser(ctx, strconv.Itoa(userId))
-		username = "N/A"
+		vnets, err = s.vnetRepo.GetAllByUser(ctx, userId)
 	}
 	if err != nil {
 		return nil, err
 	}
 
 	resp := &v1.AdminGetVNetResponseData{}
+
+	userMap := make(map[string]string)
+
+	// 查所有用户
+	if userId == "0" {
+		userIds := make([]string, 0, len(vnets))
+		seen := make(map[string]struct{})
+		for _, v := range vnets {
+			if _, ok := seen[v.UserId]; !ok {
+				seen[v.UserId] = struct{}{}
+				userIds = append(userIds, v.UserId)
+			}
+		}
+
+		// 2. 批量查询所有用户
+		users, err := s.userRepo.GetByIDs(ctx, userIds)
+		if err != nil {
+			log.Printf("AdminGetVNet: 批量获取用户失败: %v\n", err)
+		} else {
+			for _, user := range users {
+				userMap[user.UserId] = user.Username
+			}
+		}
+	} else {
+		// 单用户查询
+		user, err := s.userRepo.GetByID(ctx, userId)
+		if err != nil || user == nil {
+			userMap[userId] = "N/A"
+			log.Printf("AdminGetVNet：未找到用户userid:%s，错误: %v\n", userId, err)
+		} else {
+			userMap[userId] = user.Username
+		}
+	}
+
 	for _, v := range vnets {
-		resp.Networks = append(resp.Networks, v1.VNetData{
+		username := userMap[v.UserId]
+		if username == "" {
+			username = "N/A"
+		}
+
+		resp.Networks = append(resp.Networks, v1.AdminVNetData{
 			ID:           v.ID,
 			Name:         v.Name,
 			Enabled:      v.Enabled,
@@ -174,10 +212,10 @@ func (s *adminService) AdminGetVNet(ctx context.Context, req *v1.AdminGetVNetReq
 			EnableDHCP:   v.EnableDHCP,
 			ClientsLimit: v.ClientsLimit,
 			Clients:      v.Clients,
+			UserID:       v.UserId,
+			UserName:     username,
 		})
 	}
-	resp.UserID = strconv.Itoa(userId)
-	resp.Username = username
 	return resp, nil
 }
 
