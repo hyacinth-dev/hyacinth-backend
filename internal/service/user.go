@@ -30,12 +30,12 @@ func NewUserService(
 	service *Service,
 	userRepo repository.UserRepository,
 	usageRepo repository.UsageRepository,
-	venetRepo repository.VNetRepository,
+	vnetRepo repository.VNetRepository,
 ) UserService {
 	return &userService{
 		userRepo:  userRepo,
 		usageRepo: usageRepo,
-		vnetRepo:  venetRepo,
+		vnetRepo:  vnetRepo,
 		Service:   service,
 	}
 }
@@ -251,7 +251,7 @@ func (s *userService) UpdateVNet(ctx context.Context, vnetID string, req *v1.Upd
 }
 
 func (s *userService) CreateVNet(ctx context.Context, userId string, req *v1.CreateVNetRequest) error {
-	vnet := &model.VNet{
+	vnet := &model.VNets{
 		ID:           req.Name,
 		Name:         req.Name,
 		Enabled:      req.Enabled,

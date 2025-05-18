@@ -148,7 +148,7 @@ func (s *adminService) GetUsage(ctx context.Context, userId string, req *v1.GetU
 
 func (s *adminService) AdminGetVNet(ctx context.Context, req *v1.AdminGetVNetRequest) (*v1.AdminGetVNetResponseData, error) {
 	var (
-		vnets []model.VNet
+		vnets []model.VNets
 		err   error
 	)
 	userId := req.UserID
@@ -241,7 +241,7 @@ func (s *adminService) AdminUpdateVNet(ctx context.Context, vnetID string, req *
 }
 
 func (s *adminService) AdminCreateVNet(ctx context.Context, userId string, req *v1.AdminCreateVNetRequest) error {
-	vnet := &model.VNet{
+	vnet := &model.VNets{
 		Name:         req.Name,
 		Enabled:      req.Enabled,
 		Token:        req.Token,

@@ -7,3 +7,4 @@
 5. 返回总页数直接在GetUsagePageResponseData里加了一个PageCount
 6. 删除所有生成的nickname相关
 7. 修改并完善用户Profile相关api，补全IsAdmin、IsVip
+8. 重新生成cmd/server/wire/wire_gen.go以配置usage和vnet数据库

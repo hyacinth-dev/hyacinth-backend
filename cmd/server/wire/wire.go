@@ -4,6 +4,8 @@
 package wire
 
 import (
+	"github.com/google/wire"
+	"github.com/spf13/viper"
 	"hyacinth-backend/internal/handler"
 	"hyacinth-backend/internal/job"
 	"hyacinth-backend/internal/repository"
@@ -14,8 +16,6 @@ import (
 	"hyacinth-backend/pkg/log"
 	"hyacinth-backend/pkg/server/http"
 	"hyacinth-backend/pkg/sid"
-	"github.com/google/wire"
-	"github.com/spf13/viper"
 )
 
 var repositorySet = wire.NewSet(
@@ -24,16 +24,20 @@ var repositorySet = wire.NewSet(
 	repository.NewRepository,
 	repository.NewTransaction,
 	repository.NewUserRepository,
+	repository.NewUsageRepository,
+	repository.NewVNetRepository,
 )
 
 var serviceSet = wire.NewSet(
 	service.NewService,
 	service.NewUserService,
+	service.NewAdminService,
 )
 
 var handlerSet = wire.NewSet(
 	handler.NewHandler,
 	handler.NewUserHandler,
+	handler.NewAdminHandler,
 )
 
 var jobSet = wire.NewSet(

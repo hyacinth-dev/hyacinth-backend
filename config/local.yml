@@ -19,10 +19,10 @@ data:
         dsn: easytier:WnwRfi46DYnKCLSf@tcp(175.178.240.228:33060)/users?charset=utf8mb4&parseTime=True&loc=Local
       usage:
         driver: mysql
-        dsn: easytier:WnwRfi46DYnKCLSf@tcp(175.178.240.228:33060)/usage?charset=utf8mb4&parseTime=True&loc=Local
+        dsn: easytier:WnwRfi46DYnKCLSf@tcp(175.178.240.228:33060)/usages?charset=utf8mb4&parseTime=True&loc=Local
       vnet:
         driver: mysql
-        dsn: easytier:WnwRfi46DYnKCLSf@tcp(175.178.240.228:33060)/vnet?charset=utf8mb4&parseTime=True&loc=Local
+        dsn: easytier:WnwRfi46DYnKCLSf@tcp(175.178.240.228:33060)/vnets?charset=utf8mb4&parseTime=True&loc=Local
 #    user:
   #      driver: postgres
   #      dsn: host=localhost user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai

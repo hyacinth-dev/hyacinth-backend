@@ -6,15 +6,15 @@ import (
 )
 
 type UsageRepository interface {
-	GetUsageByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) ([]model.Usage, error)
+	GetUsageByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) ([]model.Usages, error)
 	GetTotalUsage(ctx context.Context) (int, error)
 	GetByUser(ctx context.Context, userId string) (int, error)
 }
 
 func NewUsageRepository(
 	r *Repository,
-) UserRepository {
-	return &userRepository{
+) UsageRepository {
+	return &usageRepository{
 		Repository: r,
 	}
 }
@@ -23,8 +23,8 @@ type usageRepository struct {
 	*Repository
 }
 
-func (r *usageRepository) GetUsageByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) ([]model.Usage, error) {
-	var usages []model.Usage
+func (r *usageRepository) GetUsageByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) ([]model.Usages, error) {
+	var usages []model.Usages
 	err := r.DB(ctx).
 		Where("user_id = ? AND date >= ? AND date <= ?", userId, startDate, endDate).
 		Find(&usages).Error
@@ -38,7 +38,7 @@ func (r *usageRepository) GetUsageByUserAndRange(ctx context.Context, userId str
 
 func (r *usageRepository) GetTotalUsage(ctx context.Context) (int, error) {
 	var total int64
-	err := r.DB(ctx).Model(&model.Usage{}).Select("SUM(usage)").Scan(&total).Error
+	err := r.DB(ctx).Model(&model.Usages{}).Select("SUM(usage)").Scan(&total).Error
 	if err != nil {
 		return 0, err
 	}
@@ -47,7 +47,7 @@ func (r *usageRepository) GetTotalUsage(ctx context.Context) (int, error) {
 
 func (r *usageRepository) GetByUser(ctx context.Context, userId string) (int, error) {
 	var total int64
-	err := r.DB(ctx).Model(&model.Usage{}).
+	err := r.DB(ctx).Model(&model.Usages{}).
 		Where("user_id = ?", userId).
 		Select("SUM(usage)").Scan(&total).Error
 	if err != nil {

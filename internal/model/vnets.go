@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type VNet struct {
+type VNets struct {
 	ID           string `gorm:"primaryKey"`
 	UserId       string `gorm:"not null"`
 	Name         string `gorm:"not null"`
@@ -21,6 +21,6 @@ type VNet struct {
 	DeletedAt    gorm.DeletedAt `gorm:"index"`
 }
 
-func (VNet) TableName() string {
+func (VNets) TableName() string {
 	return "vnets"
 }
