@@ -29,6 +29,8 @@ func NewHTTPServer(
 	jwt *jwt.JWT,
 	userHandler *handler.UserHandler,
 	userRepo repository.UserRepository,
+	usageHandler *handler.UsageHandler,
+	usageRepo repository.UsageRepository,
 ) *http.Server {
 	gin.SetMode(gin.DebugMode)
 	s := http.NewServer(
@@ -72,7 +74,7 @@ func NewHTTPServer(
 		noStrictAuthRouter := v1.Group("/").Use(middleware.NoStrictAuth(jwt, logger))
 		{
 			noStrictAuthRouter.GET("/user", userHandler.GetProfile)
-			noStrictAuthRouter.GET("/usage", userHandler.GetUsage)
+			noStrictAuthRouter.GET("/usage", usageHandler.GetUsage)
 		}
 
 		// Strict permission routing group

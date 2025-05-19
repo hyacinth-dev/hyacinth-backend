@@ -2,10 +2,10 @@ package server
 
 import (
 	"context"
-	"hyacinth-backend/internal/model"
-	"hyacinth-backend/pkg/log"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"hyacinth-backend/internal/model"
+	"hyacinth-backend/pkg/log"
 	"os"
 )
 
@@ -23,6 +23,8 @@ func NewMigrateServer(db *gorm.DB, log *log.Logger) *MigrateServer {
 func (m *MigrateServer) Start(ctx context.Context) error {
 	if err := m.db.AutoMigrate(
 		&model.User{},
+		&model.Usage{},
+		&model.Vnet{},
 	); err != nil {
 		m.log.Error("user migrate error", zap.Error(err))
 		return err
