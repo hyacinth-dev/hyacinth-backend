@@ -10,7 +10,7 @@ definitions:
     type: object
   github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponseData:
     properties:
-      nickname:
+      username:
         example: alan
         type: string
       userId:
@@ -67,7 +67,7 @@ definitions:
       email:
         example: 1234@gmail.com
         type: string
-      nickname:
+      username:
         example: alan
         type: string
     required:

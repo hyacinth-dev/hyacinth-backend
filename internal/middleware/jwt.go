@@ -45,8 +45,8 @@ func AdminAuth(j *jwt.JWT, logger *log.Logger, repo repository.UserRepository) g
 			ctx.Abort()
 			return
 		}
-		
-		if !user.IsAdmin{
+
+		if user.UserGroup != 0 {
 			logger.WithContext(ctx).Error("user not admin", zap.Any("data", map[string]interface{}{
 				"url":    ctx.Request.URL,
 				"params": ctx.Params,

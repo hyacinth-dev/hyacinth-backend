@@ -7,11 +7,12 @@ package service
 
 import (
 	"context"
-	"golang.org/x/crypto/bcrypt"
 	v1 "hyacinth-backend/api/v1"
 	"hyacinth-backend/internal/model"
 	"hyacinth-backend/internal/repository"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
@@ -19,7 +20,10 @@ type UserService interface {
 	Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponseData, error)
 	GetProfile(ctx context.Context, userId string) (*v1.GetProfileResponseData, error)
 	UpdateProfile(ctx context.Context, userId string, req *v1.UpdateProfileRequest) error
-	GetUsage(ctx context.Context, req *v1.GetUsageRequest) (*v1.GetUsageResponseData, error)
+	ChangePassword(ctx context.Context, userId string, req *v1.ChangePasswordRequest) error
+	PurchasePackage(ctx context.Context, userId string, req *v1.PurchasePackageRequest) error
+	GetUserByID(ctx context.Context, userId string) (*model.User, error)
+	CheckUsernameExists(ctx context.Context, username string, excludeUserId string) (bool, error)
 }
 
 func NewUserService(
@@ -47,6 +51,14 @@ func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) err
 		return v1.ErrEmailAlreadyUse
 	}
 
+	user, err = s.userRepo.GetByUsername(ctx, req.Username)
+	if err != nil {
+		return v1.ErrInternalServerError
+	}
+	if err == nil && user != nil {
+		return v1.ErrUsernameAlreadyUse
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -57,9 +69,11 @@ func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) err
 		return err
 	}
 	user = &model.User{
-		UserId:   userId,
-		Email:    req.Email,
-		Password: string(hashedPassword),
+		UserId:    userId,
+		Username:  req.Username,
+		Email:     req.Email,
+		Password:  string(hashedPassword),
+		UserGroup: 1, // 默认为普通用户
 	}
 	// Transaction demo
 	err = s.tm.Transaction(ctx, func(ctx context.Context) error {
@@ -74,9 +88,12 @@ func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) err
 }
 
 func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponseData, error) {
-	user, err := s.userRepo.GetByEmail(ctx, req.Email)
+	user, err := s.userRepo.GetByEmail(ctx, req.UsernameOrEmail)
 	if err != nil || user == nil {
-		return nil, v1.ErrUnauthorized
+		user, err = s.userRepo.GetByUsername(ctx, req.UsernameOrEmail)
+		if err != nil || user == nil {
+			return nil, v1.ErrUnauthorized
+		}
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
@@ -90,7 +107,7 @@ func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.Logi
 
 	return &v1.LoginResponseData{
 		AccessToken: token,
-		IsAdmin:     user.IsAdmin,
+		IsAdmin:     user.IsAdmin(),
 	}, nil
 }
 
@@ -100,9 +117,32 @@ func (s *userService) GetProfile(ctx context.Context, userId string) (*v1.GetPro
 		return nil, err
 	}
 
+	// 获取活跃隧道数量（这里需要根据实际业务逻辑调整）
+	activeTunnels := 0 // TODO: 实现获取活跃隧道数量的逻辑
+
+	// 获取可用流量，使用用户的剩余流量
+	availableTraffic := user.FormatRemainingTraffic()
+
+	// 获取在线设备数量（这里需要根据实际业务逻辑调整）
+	onlineDevices := 0 // TODO: 实现获取在线设备数量的逻辑
+
+	var privilegeExpiryStr *string
+	if user.PrivilegeExpiry != nil {
+		expiry := user.PrivilegeExpiry.Format("2006-01-02 15:04:05")
+		privilegeExpiryStr = &expiry
+	}
+
 	return &v1.GetProfileResponseData{
-		UserId:   user.UserId,
-		Nickname: user.Nickname,
+		UserId:           user.UserId,
+		Username:         user.Username,
+		Email:            user.Email,
+		UserGroup:        user.UserGroup,
+		UserGroupName:    user.GetUserGroupName(),
+		PrivilegeExpiry:  privilegeExpiryStr,
+		IsVip:            user.IsVip(),
+		ActiveTunnels:    activeTunnels,
+		AvailableTraffic: availableTraffic,
+		OnlineDevices:    onlineDevices,
 	}, nil
 }
 
@@ -113,7 +153,7 @@ func (s *userService) UpdateProfile(ctx context.Context, userId string, req *v1.
 	}
 
 	user.Email = req.Email
-	user.Nickname = req.Nickname
+	user.Username = req.Username
 
 	if err = s.userRepo.Update(ctx, user); err != nil {
 		return err
@@ -122,25 +162,108 @@ func (s *userService) UpdateProfile(ctx context.Context, userId string, req *v1.
 	return nil
 }
 
-func (s *userService) GetUsage(ctx context.Context, req *v1.GetUsageRequest) (*v1.GetUsageResponseData, error) {
-	return &v1.GetUsageResponseData{
-			Usages: []v1.UsageData{
-				{
-					Date:  "2021-01-01",
-					Usage: 100},
-				{
-					Date:  "2021-01-02",
-					Usage: 200,
-				},
-				{
-					Date:  "2021-01-03",
-					Usage: 300,
-				},
-				{
-					Date:  "2021-01-04",
-					Usage: 400,
-				},
-			},
-		},
-		nil
+func (s *userService) ChangePassword(ctx context.Context, userId string, req *v1.ChangePasswordRequest) error {
+	user, err := s.userRepo.GetByID(ctx, userId)
+	if err != nil {
+		return err
+	}
+
+	// 验证当前密码
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.CurrentPassword))
+	if err != nil {
+		return v1.ErrOriginalPasswordNotMatch
+	}
+
+	// 生成新密码的哈希
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	// 更新密码
+	user.Password = string(hashedPassword)
+
+	if err = s.userRepo.Update(ctx, user); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *userService) PurchasePackage(ctx context.Context, userId string, req *v1.PurchasePackageRequest) error {
+	user, err := s.userRepo.GetByID(ctx, userId)
+	if err != nil {
+		return err
+	}
+
+	// 不允许管理员购买套餐
+	if user.UserGroup == 0 {
+		return v1.ErrBadRequest
+	}
+
+	// 如果没有指定购买时长，默认为1个月
+	duration := req.Duration
+	if duration <= 0 {
+		duration = 1
+	}
+
+	now := time.Now()
+
+	// 定义不同套餐的流量额度（字节）
+	var monthlyTraffic int64
+	switch req.PackageType {
+	case 2: // 青铜用户 - 50GB/月
+		monthlyTraffic = 50 * 1024 * 1024 * 1024
+	case 3: // 白银用户 - 200GB/月
+		monthlyTraffic = 200 * 1024 * 1024 * 1024
+	case 4: // 黄金用户 - 无限流量（设置为1TB）
+		monthlyTraffic = 1024 * 1024 * 1024 * 1024
+	default:
+		return v1.ErrBadRequest
+	}
+
+	// 计算总流量（购买时长 * 月流量）
+	totalTraffic := monthlyTraffic
+
+	if req.PackageType == user.UserGroup {
+		// 相同用户组，特权时间增加指定月数，流量不变
+		if user.PrivilegeExpiry == nil || user.PrivilegeExpiry.Before(now) {
+			// 如果没有特权或已过期，从当前时间开始计算
+			expiry := now.AddDate(0, duration, 0)
+			user.PrivilegeExpiry = &expiry
+			user.RemainingTraffic = totalTraffic
+		} else {
+			// 如果特权未过期，在现有基础上增加指定月数
+			expiry := user.PrivilegeExpiry.AddDate(0, duration, 0)
+			user.PrivilegeExpiry = &expiry
+			// user.RemainingTraffic += totalTraffic
+		}
+	} else {
+		// 购买不同的用户组（升级或降级），重置为指定时长，设置新的流量额度
+		user.UserGroup = req.PackageType
+		expiry := now.AddDate(0, duration, 0)
+		user.PrivilegeExpiry = &expiry
+		user.RemainingTraffic = totalTraffic
+	}
+
+	return s.userRepo.Update(ctx, user)
+}
+
+func (s *userService) GetUserByID(ctx context.Context, userId string) (*model.User, error) {
+	return s.userRepo.GetByID(ctx, userId)
+}
+
+func (s *userService) CheckUsernameExists(ctx context.Context, username string, excludeUserId string) (bool, error) {
+	user, err := s.userRepo.GetByUsername(ctx, username)
+	if err != nil {
+		return false, err
+	}
+	if user == nil {
+		return false, nil
+	}
+	// 如果找到的用户就是要排除的用户，则认为用户名不冲突
+	if user.UserId == excludeUserId {
+		return false, nil
+	}
+	return true, nil
 }

@@ -23,13 +23,13 @@ func HandleSuccess(ctx *gin.Context, data interface{}) {
 	ctx.JSON(http.StatusOK, resp)
 }
 
-func HandleError(ctx *gin.Context, httpCode int, err error, data interface{}) {
+func HandleError(ctx *gin.Context, httpCode int, err error, data any) {
 	if data == nil {
 		data = map[string]string{}
 	}
 	resp := Response{Code: errorCodeMap[err], Message: err.Error(), Data: data}
 	if _, ok := errorCodeMap[err]; !ok {
-		resp = Response{Code: 500, Message: "unknown error", Data: data}
+		resp = Response{Code: 500, Message: err.Error(), Data: data}
 	}
 	ctx.JSON(httpCode, resp)
 }

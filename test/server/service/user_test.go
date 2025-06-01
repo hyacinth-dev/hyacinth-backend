@@ -7,7 +7,7 @@ import (
 	"fmt"
 	v1 "hyacinth-backend/api/v1"
 	"hyacinth-backend/pkg/jwt"
-	"hyacinth-backend/test/mocks/repository"
+	mock_repository "hyacinth-backend/test/mocks/repository"
 	"os"
 	"testing"
 
@@ -16,6 +16,7 @@ import (
 	"hyacinth-backend/pkg/config"
 	"hyacinth-backend/pkg/log"
 	"hyacinth-backend/pkg/sid"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
@@ -106,15 +107,15 @@ func TestUserService_Login(t *testing.T) {
 
 	ctx := context.Background()
 	req := &v1.LoginRequest{
-		Email:    "xxx@gmail.com",
-		Password: "password",
+		UsernameOrEmail: "xxx@gmail.com",
+		Password:        "password",
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		t.Error("failed to hash password")
 	}
 
-	mockUserRepo.EXPECT().GetByEmail(ctx, req.Email).Return(&model.User{
+	mockUserRepo.EXPECT().GetByEmail(ctx, req.UsernameOrEmail).Return(&model.User{
 		Password: string(hashedPassword),
 	}, nil)
 
@@ -135,11 +136,11 @@ func TestUserService_Login_UserNotFound(t *testing.T) {
 
 	ctx := context.Background()
 	req := &v1.LoginRequest{
-		Email:    "xxx@gmail.com",
-		Password: "password",
+		UsernameOrEmail: "xxx@gmail.com",
+		Password:        "password",
 	}
 
-	mockUserRepo.EXPECT().GetByEmail(ctx, req.Email).Return(nil, errors.New("user not found"))
+	mockUserRepo.EXPECT().GetByEmail(ctx, req.UsernameOrEmail).Return(nil, errors.New("user not found"))
 
 	_, err := userService.Login(ctx, req)
 
@@ -181,7 +182,7 @@ func TestUserService_UpdateProfile(t *testing.T) {
 	ctx := context.Background()
 	userId := "123"
 	req := &v1.UpdateProfileRequest{
-		Nickname: "testuser",
+		Username: "testuser",
 		Email:    "test@example.com",
 	}
 
@@ -208,7 +209,7 @@ func TestUserService_UpdateProfile_UserNotFound(t *testing.T) {
 	ctx := context.Background()
 	userId := "123"
 	req := &v1.UpdateProfileRequest{
-		Nickname: "testuser",
+		Username: "testuser",
 		Email:    "test@example.com",
 	}
 

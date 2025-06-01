@@ -173,7 +173,7 @@ const docTemplate = `{
         "github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponseData": {
             "type": "object",
             "properties": {
-                "nickname": {
+                "username": {
                     "type": "string",
                     "example": "alan"
                 },
@@ -260,7 +260,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "1234@gmail.com"
                 },
-                "nickname": {
+                "username": {
                     "type": "string",
                     "example": "alan"
                 }

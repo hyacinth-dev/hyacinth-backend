@@ -6,9 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"hyacinth-backend/internal/model"
 	"hyacinth-backend/internal/repository"
+
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -45,7 +46,7 @@ func TestUserRepository_Create(t *testing.T) {
 	user := &model.User{
 		Id:        1,
 		UserId:    "123",
-		Nickname:  "Test",
+		Username:  "Test",
 		Password:  "password",
 		Email:     "test@example.com",
 		CreatedAt: time.Now(),
@@ -54,7 +55,7 @@ func TestUserRepository_Create(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT INTO `users`").
-		WithArgs(user.UserId, user.Nickname, user.Password, user.Email, user.CreatedAt, user.UpdatedAt, user.DeletedAt, user.Id).
+		WithArgs(user.UserId, user.Username, user.Password, user.Email, user.CreatedAt, user.UpdatedAt, user.DeletedAt, user.Id).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
@@ -71,7 +72,7 @@ func TestUserRepository_Update(t *testing.T) {
 	user := &model.User{
 		Id:        1,
 		UserId:    "123",
-		Nickname:  "Test",
+		Username:  "Test",
 		Password:  "password",
 		Email:     "test@example.com",
 		CreatedAt: time.Now(),
@@ -94,7 +95,7 @@ func TestUserRepository_GetById(t *testing.T) {
 	ctx := context.Background()
 	userId := "123"
 
-	rows := sqlmock.NewRows([]string{"id", "user_id", "username", "nickname", "password", "email", "created_at", "updated_at"}).
+	rows := sqlmock.NewRows([]string{"id", "user_id", "username", "username", "password", "email", "created_at", "updated_at"}).
 		AddRow(1, "123", "test", "Test", "password", "test@example.com", time.Now(), time.Now())
 	mock.ExpectQuery("SELECT \\* FROM `users`").WillReturnRows(rows)
 
@@ -112,7 +113,7 @@ func TestUserRepository_GetByUsername(t *testing.T) {
 	ctx := context.Background()
 	email := "test@example.com"
 
-	rows := sqlmock.NewRows([]string{"id", "user_id", "username", "nickname", "password", "email", "created_at", "updated_at"}).
+	rows := sqlmock.NewRows([]string{"id", "user_id", "username", "username", "password", "email", "created_at", "updated_at"}).
 		AddRow(1, "123", "test", "Test", "password", "test@example.com", time.Now(), time.Now())
 	mock.ExpectQuery("SELECT \\* FROM `users`").WillReturnRows(rows)
 

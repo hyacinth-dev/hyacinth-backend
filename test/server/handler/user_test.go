@@ -4,7 +4,7 @@ import (
 	v1 "hyacinth-backend/api/v1"
 	"hyacinth-backend/internal/handler"
 	"hyacinth-backend/internal/middleware"
-	"hyacinth-backend/test/mocks/service"
+	mock_service "hyacinth-backend/test/mocks/service"
 	"net/http"
 	"testing"
 
@@ -43,8 +43,8 @@ func TestUserHandler_Login(t *testing.T) {
 	defer ctrl.Finish()
 
 	params := v1.LoginRequest{
-		Email:    "xxx@gmail.com",
-		Password: "123456",
+		UsernameOrEmail: "xxx@gmail.com",
+		Password:        "123456",
 	}
 
 	tk := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiJ4eHgiLCJleHAiOjE3MzgyMjA1MTQsIm5iZiI6MTczMDQ0NDUxNCwiaWF0IjoxNzMwNDQ0NTE0fQ.3D4YupmPBCkv16ESnYyWSV5Mxcdu0twzEUqx0K-UiWo"
@@ -70,11 +70,11 @@ func TestUserHandler_GetProfile(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	nickname := "xxxxx"
+	username := "xxxxx"
 	mockUserService := mock_service.NewMockUserService(ctrl)
 	mockUserService.EXPECT().GetProfile(gomock.Any(), userId).Return(&v1.GetProfileResponseData{
 		UserId:   userId,
-		Nickname: nickname,
+		Username: username,
 	}, nil)
 
 	userHandler := handler.NewUserHandler(hdl, mockUserService)
@@ -91,7 +91,7 @@ func TestUserHandler_GetProfile(t *testing.T) {
 	obj.Value("message").IsEqual("ok")
 	objData := obj.Value("data").Object()
 	objData.Value("userId").IsEqual(userId)
-	objData.Value("nickname").IsEqual(nickname)
+	objData.Value("username").IsEqual(username)
 }
 
 func TestUserHandler_UpdateProfile(t *testing.T) {
@@ -99,7 +99,7 @@ func TestUserHandler_UpdateProfile(t *testing.T) {
 	defer ctrl.Finish()
 
 	params := v1.UpdateProfileRequest{
-		Nickname: "alan",
+		Username: "alan",
 		Email:    "alan@gmail.com",
 	}
 

@@ -5,3 +5,4 @@ deploy/docker-compose/conf
 deploy/docker-compose/data
 
 storage/nunu-test.db
+config/local.yml
