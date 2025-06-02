@@ -11,6 +11,19 @@ import (
 	"gorm.io/gorm"
 )
 
+// DefaultTrafficForNewUser 新用户默认流量（5GB）
+const DefaultTrafficForNewUser = 5 * 1024 * 1024 * 1024
+
+// 不同用户组的月流量额度
+const (
+	// BronzeMonthlyTraffic 青铜用户月流量（50GB）
+	BronzeMonthlyTraffic = 50 * 1024 * 1024 * 1024
+	// SilverMonthlyTraffic 白银用户月流量（200GB）
+	SilverMonthlyTraffic = 200 * 1024 * 1024 * 1024
+	// GoldMonthlyTraffic 黄金用户月流量（1TB）
+	GoldMonthlyTraffic = 1024 * 1024 * 1024 * 1024
+)
+
 type User struct {
 	gorm.Model
 	UserId           string     `gorm:"unique;not null"`
@@ -79,6 +92,30 @@ func (u *User) FormatRemainingTraffic() string {
 		return fmt.Sprintf("%.2f TB", gb/1024)
 	}
 	return fmt.Sprintf("%.2f GB", gb)
+}
+
+// GetDefaultTrafficFormatted 获取默认初始流量的格式化显示
+func GetDefaultTrafficFormatted() string {
+	gb := float64(DefaultTrafficForNewUser) / (1024 * 1024 * 1024)
+	return fmt.Sprintf("%.0f GB", gb)
+}
+
+// GetMonthlyTrafficLimit 获取用户组对应的月流量限制
+func (u *User) GetMonthlyTrafficLimit() int64 {
+	switch u.UserGroup {
+	case 0: // 管理员 - 无限制
+		return -1 // -1 表示无限制
+	case 1: // 普通用户 - 没有月流量概念，使用一次性流量
+		return 0
+	case 2: // 青铜用户
+		return BronzeMonthlyTraffic
+	case 3: // 白银用户
+		return SilverMonthlyTraffic
+	case 4: // 黄金用户
+		return GoldMonthlyTraffic
+	default:
+		return 0
+	}
 }
 
 // GetVirtualNetworkLimit 获取用户虚拟网络数量限制

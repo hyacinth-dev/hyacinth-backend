@@ -69,11 +69,12 @@ func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) err
 		return err
 	}
 	user = &model.User{
-		UserId:    userId,
-		Username:  req.Username,
-		Email:     req.Email,
-		Password:  string(hashedPassword),
-		UserGroup: 1, // 默认为普通用户
+		UserId:           userId,
+		Username:         req.Username,
+		Email:            req.Email,
+		Password:         string(hashedPassword),
+		UserGroup:        1,                              // 默认为普通用户
+		RemainingTraffic: model.DefaultTrafficForNewUser, // 为新用户提供默认初始流量
 	}
 	// Transaction demo
 	err = s.tm.Transaction(ctx, func(ctx context.Context) error {
@@ -213,11 +214,11 @@ func (s *userService) PurchasePackage(ctx context.Context, userId string, req *v
 	var monthlyTraffic int64
 	switch req.PackageType {
 	case 2: // 青铜用户 - 50GB/月
-		monthlyTraffic = 50 * 1024 * 1024 * 1024
+		monthlyTraffic = model.BronzeMonthlyTraffic
 	case 3: // 白银用户 - 200GB/月
-		monthlyTraffic = 200 * 1024 * 1024 * 1024
+		monthlyTraffic = model.SilverMonthlyTraffic
 	case 4: // 黄金用户 - 无限流量（设置为1TB）
-		monthlyTraffic = 1024 * 1024 * 1024 * 1024
+		monthlyTraffic = model.GoldMonthlyTraffic
 	default:
 		return v1.ErrBadRequest
 	}
