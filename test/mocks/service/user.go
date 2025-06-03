@@ -7,6 +7,7 @@ package mock_service
 import (
 	context "context"
 	v1 "hyacinth-backend/api/v1"
+	model "hyacinth-backend/internal/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -35,6 +36,35 @@ func (m *MockUserService) EXPECT() *MockUserServiceMockRecorder {
 	return m.recorder
 }
 
+// ChangePassword mocks base method.
+func (m *MockUserService) ChangePassword(ctx context.Context, userId string, req *v1.ChangePasswordRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangePassword", ctx, userId, req)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ChangePassword indicates an expected call of ChangePassword.
+func (mr *MockUserServiceMockRecorder) ChangePassword(ctx, userId, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePassword", reflect.TypeOf((*MockUserService)(nil).ChangePassword), ctx, userId, req)
+}
+
+// CheckUsernameExists mocks base method.
+func (m *MockUserService) CheckUsernameExists(ctx context.Context, username, excludeUserId string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckUsernameExists", ctx, username, excludeUserId)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckUsernameExists indicates an expected call of CheckUsernameExists.
+func (mr *MockUserServiceMockRecorder) CheckUsernameExists(ctx, username, excludeUserId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUsernameExists", reflect.TypeOf((*MockUserService)(nil).CheckUsernameExists), ctx, username, excludeUserId)
+}
+
 // GetProfile mocks base method.
 func (m *MockUserService) GetProfile(ctx context.Context, userId string) (*v1.GetProfileResponseData, error) {
 	m.ctrl.T.Helper()
@@ -50,19 +80,19 @@ func (mr *MockUserServiceMockRecorder) GetProfile(ctx, userId interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockUserService)(nil).GetProfile), ctx, userId)
 }
 
-// GetUsage mocks base method.
-func (m *MockUserService) GetUsage(ctx context.Context, req *v1.GetUsageRequest) (*v1.GetUsageResponseData, error) {
+// GetUserByID mocks base method.
+func (m *MockUserService) GetUserByID(ctx context.Context, userId string) (*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUsage", ctx, req)
-	ret0, _ := ret[0].(*v1.GetUsageResponseData)
+	ret := m.ctrl.Call(m, "GetUserByID", ctx, userId)
+	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetUsage indicates an expected call of GetUsage.
-func (mr *MockUserServiceMockRecorder) GetUsage(ctx, req interface{}) *gomock.Call {
+// GetUserByID indicates an expected call of GetUserByID.
+func (mr *MockUserServiceMockRecorder) GetUserByID(ctx, userId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsage", reflect.TypeOf((*MockUserService)(nil).GetUsage), ctx, req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockUserService)(nil).GetUserByID), ctx, userId)
 }
 
 // Login mocks base method.
@@ -78,6 +108,20 @@ func (m *MockUserService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.
 func (mr *MockUserServiceMockRecorder) Login(ctx, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUserService)(nil).Login), ctx, req)
+}
+
+// PurchasePackage mocks base method.
+func (m *MockUserService) PurchasePackage(ctx context.Context, userId string, req *v1.PurchasePackageRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PurchasePackage", ctx, userId, req)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PurchasePackage indicates an expected call of PurchasePackage.
+func (mr *MockUserServiceMockRecorder) PurchasePackage(ctx, userId, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PurchasePackage", reflect.TypeOf((*MockUserService)(nil).PurchasePackage), ctx, userId, req)
 }
 
 // Register mocks base method.

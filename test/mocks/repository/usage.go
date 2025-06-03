@@ -36,16 +36,16 @@ func (m *MockUsageRepository) EXPECT() *MockUsageRepositoryMockRecorder {
 }
 
 // GetUsage mocks base method.
-func (m *MockUsageRepository) GetUsage(ctx context.Context, userId, timeRange string) (*[]v1.UsageData, error) {
+func (m *MockUsageRepository) GetUsage(ctx context.Context, userId, vnetId, timeRange string) (*[]v1.UsageData, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUsage", ctx, userId, timeRange)
+	ret := m.ctrl.Call(m, "GetUsage", ctx, userId, vnetId, timeRange)
 	ret0, _ := ret[0].(*[]v1.UsageData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUsage indicates an expected call of GetUsage.
-func (mr *MockUsageRepositoryMockRecorder) GetUsage(ctx, userId, timeRange interface{}) *gomock.Call {
+func (mr *MockUsageRepositoryMockRecorder) GetUsage(ctx, userId, vnetId, timeRange interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsage", reflect.TypeOf((*MockUsageRepository)(nil).GetUsage), ctx, userId, timeRange)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsage", reflect.TypeOf((*MockUsageRepository)(nil).GetUsage), ctx, userId, vnetId, timeRange)
 }
