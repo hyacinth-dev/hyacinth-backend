@@ -17,11 +17,11 @@ const DefaultTrafficForNewUser = 5 * 1024 * 1024 * 1024
 // 不同用户组的月流量额度
 const (
 	// BronzeMonthlyTraffic 青铜用户月流量（50GB）
-	BronzeMonthlyTraffic = 50 * 1024 * 1024 * 1024
+	BronzeMonthlyTraffic int64 = 50 * 1024 * 1024 * 1024
 	// SilverMonthlyTraffic 白银用户月流量（200GB）
-	SilverMonthlyTraffic = 200 * 1024 * 1024 * 1024
+	SilverMonthlyTraffic int64 = 200 * 1024 * 1024 * 1024
 	// GoldMonthlyTraffic 黄金用户月流量（1TB）
-	GoldMonthlyTraffic = 1024 * 1024 * 1024 * 1024
+	GoldMonthlyTraffic int64 = 1024 * 1024 * 1024 * 1024
 )
 
 type User struct {
