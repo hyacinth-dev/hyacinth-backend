@@ -1,9 +1,8 @@
 // 在此模块定义请求路由
-// 路由分四类：
+// 路由分三类：
 // 1. 无需权限的路由，如：注册、登录、以及主页数据的展示
 // 2. 非严格权限的路由，如：获取用户信息、获取使用情况等
 // 3. 严格权限的路由，如：更新用户信息等
-// 4. 管理员权限的路由，如：管理用户等
 
 package server
 
@@ -12,7 +11,6 @@ import (
 	"hyacinth-backend/docs"
 	"hyacinth-backend/internal/handler"
 	"hyacinth-backend/internal/middleware"
-	"hyacinth-backend/internal/repository"
 	"hyacinth-backend/pkg/jwt"
 	"hyacinth-backend/pkg/log"
 	"hyacinth-backend/pkg/server/http"
@@ -28,8 +26,6 @@ func NewHTTPServer(
 	conf *viper.Viper,
 	jwt *jwt.JWT,
 	userHandler *handler.UserHandler,
-	adminHandler *handler.AdminHandler,
-	userRepo repository.UserRepository,
 ) *http.Server {
 	gin.SetMode(gin.DebugMode)
 	s := http.NewServer(
@@ -90,20 +86,6 @@ func NewHTTPServer(
 			strictAuthRouter.POST("/vnet", userHandler.CreateVNet)
 			strictAuthRouter.PUT("/vnet/:vnetId", userHandler.UpdateVNet)
 			strictAuthRouter.DELETE("/vnet/:vnetId", userHandler.DeleteVNet)
-		}
-
-		adminAuthRouter := v1.Group("/admin").Use(middleware.AdminAuth(jwt, logger, userRepo))
-		{
-			adminAuthRouter.GET("/user", adminHandler.GetUserProfile)
-
-			adminAuthRouter.GET("/usage", adminHandler.GetUsage)
-
-			adminAuthRouter.GET("/vnet/userid", adminHandler.GetVnetByUserId)
-			adminAuthRouter.GET("/vnet/vnetid", adminHandler.GetVnetByVnetId)
-			adminAuthRouter.PUT("/vnet", adminHandler.UpdateVnet)
-			adminAuthRouter.DELETE("/vnet", adminHandler.DeleteVnet)
-
-			adminAuthRouter.GET("/online-devices-stats", adminHandler.GetOnlineDevicesStats)
 		}
 	}
 

@@ -42,8 +42,6 @@ func (u *User) TableName() string {
 // GetUserGroupName 获取用户组名称
 func (u *User) GetUserGroupName() string {
 	switch u.UserGroup {
-	case 0:
-		return "管理员"
 	case 1:
 		return "普通用户"
 	case 2:
@@ -63,11 +61,6 @@ func (u *User) IsPrivilegeExpired() bool {
 		return true
 	}
 	return time.Now().After(*u.PrivilegeExpiry)
-}
-
-// IsAdmin 检查用户是否为管理员
-func (u *User) IsAdmin() bool {
-	return u.UserGroup == 0
 }
 
 // IsVip 检查用户是否为VIP用户（青铜及以上等级）
@@ -103,8 +96,6 @@ func GetDefaultTrafficFormatted() string {
 // GetMonthlyTrafficLimit 获取用户组对应的月流量限制
 func (u *User) GetMonthlyTrafficLimit() int64 {
 	switch u.UserGroup {
-	case 0: // 管理员 - 无限制
-		return -1 // -1 表示无限制
 	case 1: // 普通用户 - 没有月流量概念，使用一次性流量
 		return 0
 	case 2: // 青铜用户
@@ -121,8 +112,6 @@ func (u *User) GetMonthlyTrafficLimit() int64 {
 // GetVirtualNetworkLimit 获取用户虚拟网络数量限制
 func (u *User) GetVirtualNetworkLimit() int {
 	switch u.UserGroup {
-	case 0: // 管理员
-		return 999 // 无限制
 	case 1: // 普通用户
 		return 1
 	case 2: // 青铜用户
@@ -148,8 +137,6 @@ func (u *User) GetVirtualNetworkLimit() int {
 // GetMaxClientsLimitPerVNet 获取用户单个虚拟网络的最大在线人数限制
 func (u *User) GetMaxClientsLimitPerVNet() int {
 	switch u.UserGroup {
-	case 0: // 管理员
-		return 999999 // 无限制
 	case 1: // 普通用户
 		return 3
 	case 2: // 青铜用户

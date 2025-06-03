@@ -38,9 +38,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	vnetRepository := repository.NewVnetRepository(repositoryRepository)
 	vnetService := service.NewVnetService(serviceService, vnetRepository)
 	userHandler := handler.NewUserHandler(handlerHandler, userService, usageService, vnetService)
-	adminService := service.NewAdminService(serviceService, userRepository, usageRepository)
-	adminHandler := handler.NewAdminHandler(handlerHandler, adminService, userService, usageService, vnetService)
-	httpServer := server.NewHTTPServer(logger, viperViper, jwtJWT, userHandler, adminHandler, userRepository)
+	httpServer := server.NewHTTPServer(logger, viperViper, jwtJWT, userHandler)
 	jobJob := job.NewJob(transaction, logger, sidSid)
 	userJob := job.NewUserJob(jobJob, userRepository)
 	jobServer := server.NewJobServer(logger, userJob)
@@ -53,9 +51,9 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewUsageRepository, repository.NewVnetRepository)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewUsageService, service.NewAdminService, service.NewVnetService)
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewUsageService, service.NewVnetService)
 
-var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewAdminHandler)
+var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler)
 
 var jobSet = wire.NewSet(job.NewJob, job.NewUserJob)
 

@@ -108,7 +108,6 @@ func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.Logi
 
 	return &v1.LoginResponseData{
 		AccessToken: token,
-		IsAdmin:     user.IsAdmin(),
 	}, nil
 }
 
@@ -118,14 +117,11 @@ func (s *userService) GetProfile(ctx context.Context, userId string) (*v1.GetPro
 		return nil, err
 	}
 
-	// 获取活跃隧道数量（这里需要根据实际业务逻辑调整）
-	activeTunnels := 0 // TODO: 实现获取活跃隧道数量的逻辑
+	activeTunnels := 0
 
-	// 获取可用流量，使用用户的剩余流量
 	availableTraffic := user.FormatRemainingTraffic()
 
-	// 获取在线设备数量（这里需要根据实际业务逻辑调整）
-	onlineDevices := 0 // TODO: 实现获取在线设备数量的逻辑
+	onlineDevices := 0
 
 	var privilegeExpiryStr *string
 	if user.PrivilegeExpiry != nil {
@@ -197,15 +193,10 @@ func (s *userService) PurchasePackage(ctx context.Context, userId string, req *v
 		return err
 	}
 
-	// 不允许管理员购买套餐
-	if user.UserGroup == 0 {
-		return v1.ErrBadRequest
-	}
-
-	// 如果没有指定购买时长，默认为1个月
+	// 如果没有指定购买时长
 	duration := req.Duration
 	if duration <= 0 {
-		duration = 1
+		return v1.ErrBadRequest
 	}
 
 	now := time.Now()

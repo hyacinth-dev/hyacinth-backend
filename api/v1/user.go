@@ -16,7 +16,6 @@ type LoginRequest struct {
 }
 type LoginResponseData struct {
 	AccessToken string `json:"accessToken"`
-	IsAdmin     bool   `json:"isAdmin"`
 }
 type LoginResponse struct {
 	Response
@@ -48,10 +47,6 @@ type GetProfileResponseData struct {
 type GetProfileResponse struct {
 	Response
 	Data GetProfileResponseData
-}
-
-type GetProfileByAdminRequest struct {
-	UserId string `json:"userId" binding:"required" example:"1234"`
 }
 
 // PurchasePackageRequest 购买增值服务套餐请求
