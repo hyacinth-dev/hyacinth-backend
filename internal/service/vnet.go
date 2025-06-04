@@ -5,6 +5,7 @@ import (
 	v1 "hyacinth-backend/api/v1"
 	"hyacinth-backend/internal/model"
 	"hyacinth-backend/internal/repository"
+	"sync"
 )
 
 type VnetService interface {
@@ -33,6 +34,7 @@ func NewVnetService(
 
 type vnetService struct {
 	*Service
+	vnetLock       sync.Mutex
 	vnetRepository repository.VnetRepository
 }
 
@@ -64,6 +66,8 @@ func (s *vnetService) UpdateVnet(ctx context.Context, req *v1.UpdateVnetRequest)
 }
 
 func (s *vnetService) CreateVnet(ctx context.Context, req *v1.CreateVnetRequest, userId string) error {
+	s.vnetLock.Lock()
+	defer s.vnetLock.Unlock()
 	vnet := &model.Vnet{
 		VnetId:       req.VnetId,
 		UserId:       userId,
@@ -83,6 +87,8 @@ func (s *vnetService) CreateVnet(ctx context.Context, req *v1.CreateVnetRequest,
 }
 
 func (s *vnetService) DeleteVnet(ctx context.Context, req *v1.DeleteVnetRequest) error {
+	s.vnetLock.Lock()
+	defer s.vnetLock.Unlock()
 	vnet, err := s.vnetRepository.GetVnetByVnetId(ctx, req.VnetID)
 	if err != nil {
 		return err

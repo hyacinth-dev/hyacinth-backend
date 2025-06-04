@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+	"sync"
 )
 
 type UserService interface {
@@ -31,17 +32,21 @@ func NewUserService(
 	userRepo repository.UserRepository,
 ) UserService {
 	return &userService{
-		userRepo: userRepo,
-		Service:  service,
+		userRepo:      userRepo,
+		Service:       service,
+		registerMutex: sync.Mutex{},
 	}
 }
 
 type userService struct {
-	userRepo repository.UserRepository
+	userRepo      repository.UserRepository
+	registerMutex sync.Mutex // 确保注册操作的线程安全
 	*Service
 }
 
 func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) error {
+	s.registerMutex.Lock()
+	defer s.registerMutex.Unlock()
 	// check username
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
