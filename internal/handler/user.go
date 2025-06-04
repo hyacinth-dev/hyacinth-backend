@@ -81,8 +81,8 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 	}
 
 	// 校验用户名或邮箱格式
-	usernamePattern := `^[a-zA-Z0-9]+$`
-	emailPattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	usernamePattern := `^[a-zA-Z0-9_]{3,20}$`
+	emailPattern := `^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$`
 	if matchedUser, _ := regexp.MatchString(usernamePattern, req.UsernameOrEmail); !matchedUser {
 		if matchedEmail, _ := regexp.MatchString(emailPattern, req.UsernameOrEmail); !matchedEmail {
 			v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
