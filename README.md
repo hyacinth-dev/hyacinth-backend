@@ -177,12 +177,12 @@ jwt:
 
 1. **编译应用**
    ```bash
-   CGO_ENABLED=0 GOOS=linux go build -o hyacinth-backend cmd/server/main.go
+   make build
    ```
 
 2. **上传到服务器并运行**
    ```bash
-   ./hyacinth-backend -conf config/local.yml
+   ./hyacinth-backend -conf config/prod.yml
    ```
 
 ## 📝 开发指南
