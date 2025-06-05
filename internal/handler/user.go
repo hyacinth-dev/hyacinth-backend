@@ -40,11 +40,11 @@ func NewUserHandler(
 // Register godoc
 // @Summary 用户注册
 // @Schemes
-// @Description 目前只支持邮箱登录
+// @Description 用户注册接口，需要提供用户名、邮箱和密码
 // @Tags 用户模块
 // @Accept json
 // @Produce json
-// @Param request body v1.RegisterRequest true "params"
+// @Param request body v1.RegisterRequest true "注册请求参数"
 // @Success 200 {object} v1.Response
 // @Router /register [post]
 func (h *UserHandler) Register(ctx *gin.Context) {
@@ -66,11 +66,11 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 // Login godoc
 // @Summary 账号登录
 // @Schemes
-// @Description
+// @Description 用户登录接口，支持邮箱或用户名登录
 // @Tags 用户模块
 // @Accept json
 // @Produce json
-// @Param request body v1.LoginRequest true "params"
+// @Param request body v1.LoginRequest true "登录请求参数"
 // @Success 200 {object} v1.LoginResponse
 // @Router /login [post]
 func (h *UserHandler) Login(ctx *gin.Context) {
@@ -101,7 +101,7 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 // GetProfile godoc
 // @Summary 获取用户信息
 // @Schemes
-// @Description
+// @Description 获取当前登录用户的详细信息，包括用户基本信息、活跃隧道数、在线设备数等
 // @Tags 用户模块
 // @Accept json
 // @Produce json
@@ -148,12 +148,12 @@ func (h *UserHandler) GetProfile(ctx *gin.Context) {
 // UpdateProfile godoc
 // @Summary 修改用户信息
 // @Schemes
-// @Description
+// @Description 修改用户的基本信息，包括用户名和邮箱
 // @Tags 用户模块
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body v1.UpdateProfileRequest true "params"
+// @Param request body v1.UpdateProfileRequest true "修改用户信息请求参数"
 // @Success 200 {object} v1.Response
 // @Router /user [put]
 func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
@@ -201,7 +201,7 @@ func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body v1.PurchasePackageRequest true "params"
+// @Param request body v1.PurchasePackageRequest true "购买套餐请求参数"
 // @Success 200 {object} v1.PurchasePackageResponse
 // @Router /user/purchase [post]
 func (h *UserHandler) PurchasePackage(ctx *gin.Context) {
@@ -265,6 +265,19 @@ func (h *UserHandler) PurchasePackage(ctx *gin.Context) {
 	v1.HandleSuccess(ctx, nil)
 }
 
+// GetUsage godoc
+// @Summary 获取用户流量使用量
+// @Schemes
+// @Description 获取用户在指定时间范围内的流量使用量统计数据
+// @Tags 用户模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param userId query string false "用户ID，可选" "1"
+// @Param vnetId query string false "虚拟网络ID，可选，空值表示所有虚拟网络" "vnet_123"
+// @Param range query string true "时间范围：24h(24小时), 7d(7天), 30d(30天), month(按月), all(全部)" "30d"
+// @Success 200 {object} v1.GetUsageResponse
+// @Router /usage [get]
 func (h *UserHandler) GetUsage(ctx *gin.Context) {
 	var req v1.GetUsageRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -345,7 +358,7 @@ func (h *UserHandler) GetVNetList(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body v1.CreateVnetRequest true "params"
+// @Param request body v1.CreateVnetRequest true "创建虚拟网络请求参数"
 // @Success 200 {object} v1.Response
 // @Router /vnet [post]
 func (h *UserHandler) CreateVNet(ctx *gin.Context) {
@@ -423,8 +436,8 @@ func (h *UserHandler) CreateVNet(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param vnetId path string true "VNet ID"
-// @Param request body v1.UpdateVnetRequest true "params"
+// @Param vnetId path string true "虚拟网络ID，用于标识要更新的虚拟网络" "vnet_123"
+// @Param request body v1.UpdateVnetRequest true "更新虚拟网络请求参数"
 // @Success 200 {object} v1.Response
 // @Router /vnet/{vnetId} [put]
 func (h *UserHandler) UpdateVNet(ctx *gin.Context) {
@@ -523,7 +536,7 @@ func (h *UserHandler) UpdateVNet(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param vnetId path string true "VNet ID"
+// @Param vnetId path string true "虚拟网络ID，用于标识要删除的虚拟网络" "vnet_123"
 // @Success 200 {object} v1.Response
 // @Router /vnet/{vnetId} [delete]
 func (h *UserHandler) DeleteVNet(ctx *gin.Context) {
@@ -651,7 +664,7 @@ func generateVnetId(userId string) string {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body v1.ChangePasswordRequest true "params"
+// @Param request body v1.ChangePasswordRequest true "修改密码请求参数"
 // @Success 200 {object} v1.Response
 // @Router /user/password [put]
 func (h *UserHandler) ChangePassword(ctx *gin.Context) {

@@ -1,60 +1,223 @@
 definitions:
-  github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponse:
+  hyacinth-backend_api_v1.ChangePasswordRequest:
+    properties:
+      currentPassword:
+        example: "123456"
+        type: string
+      newPassword:
+        example: "654321"
+        type: string
+    required:
+    - currentPassword
+    - newPassword
+    type: object
+  hyacinth-backend_api_v1.CreateVnetRequest:
+    properties:
+      clientsLimit:
+        example: 10
+        type: integer
+      comment:
+        example: 我的虚拟网络
+        type: string
+      enableDHCP:
+        example: true
+        type: boolean
+      enabled:
+        example: true
+        type: boolean
+      ipRange:
+        example: 192.168.1.0/24
+        type: string
+      password:
+        example: "1234"
+        type: string
+      token:
+        example: "1234"
+        type: string
+      vnetId:
+        example: "1234"
+        type: string
+    type: object
+  hyacinth-backend_api_v1.GetProfileResponse:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponseData'
+        $ref: '#/definitions/hyacinth-backend_api_v1.GetProfileResponseData'
       message:
         type: string
     type: object
-  github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponseData:
+  hyacinth-backend_api_v1.GetProfileResponseData:
     properties:
-      username:
-        example: alan
+      activeTunnels:
+        type: integer
+      availableTraffic:
         type: string
-      userId:
-        type: string
-    type: object
-  github_com_go-nunu_nunu-layout-advanced_api_v1.LoginRequest:
-    properties:
       email:
         example: 1234@gmail.com
         type: string
-      password:
-        example: "123456"
+      isVip:
+        type: boolean
+      onlineDevices:
+        type: integer
+      privilegeExpiry:
+        type: string
+      userGroup:
+        type: integer
+      userGroupName:
+        type: string
+      userId:
+        type: string
+      username:
+        example: alan
         type: string
     required:
     - email
-    - password
     type: object
-  github_com_go-nunu_nunu-layout-advanced_api_v1.LoginResponse:
+  hyacinth-backend_api_v1.GetUsageResponse:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.LoginResponseData'
+        $ref: '#/definitions/hyacinth-backend_api_v1.GetUsageResponseData'
       message:
         type: string
     type: object
-  github_com_go-nunu_nunu-layout-advanced_api_v1.LoginResponseData:
+  hyacinth-backend_api_v1.GetUsageResponseData:
+    properties:
+      usages:
+        items:
+          $ref: '#/definitions/hyacinth-backend_api_v1.UsageData'
+        type: array
+    type: object
+  hyacinth-backend_api_v1.GetUserGroupResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/hyacinth-backend_api_v1.GetUserGroupResponseData'
+      message:
+        type: string
+    type: object
+  hyacinth-backend_api_v1.GetUserGroupResponseData:
+    properties:
+      userGroup:
+        type: integer
+    type: object
+  hyacinth-backend_api_v1.GetVNetLimitInfoResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/hyacinth-backend_api_v1.GetVNetLimitInfoResponseData'
+      message:
+        type: string
+    type: object
+  hyacinth-backend_api_v1.GetVNetLimitInfoResponseData:
+    properties:
+      currentCount:
+        example: 2
+        type: integer
+      maxClientsLimitPerVNet:
+        example: 10
+        type: integer
+      maxLimit:
+        example: 5
+        type: integer
+      userGroup:
+        example: 3
+        type: integer
+    type: object
+  hyacinth-backend_api_v1.GetVnetByUserIdResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/hyacinth-backend_api_v1.GetVnetResponseData'
+      message:
+        type: string
+    type: object
+  hyacinth-backend_api_v1.GetVnetByUserIdResponseItem:
+    properties:
+      clientsLimit:
+        example: 10
+        type: integer
+      clientsOnline:
+        example: 5
+        type: integer
+      comment:
+        example: 我的虚拟网络
+        type: string
+      enableDHCP:
+        example: true
+        type: boolean
+      enabled:
+        example: true
+        type: boolean
+      ipRange:
+        example: 192.168.1.0/24
+        type: string
+      password:
+        example: "1234"
+        type: string
+      token:
+        example: "1234"
+        type: string
+      vnetId:
+        example: "1234"
+        type: string
+    type: object
+  hyacinth-backend_api_v1.GetVnetResponseData:
+    properties:
+      vnets:
+        items:
+          $ref: '#/definitions/hyacinth-backend_api_v1.GetVnetByUserIdResponseItem'
+        type: array
+    type: object
+  hyacinth-backend_api_v1.LoginRequest:
+    properties:
+      password:
+        example: "123456"
+        type: string
+      usernameOrEmail:
+        example: 1234@gmail.com
+        type: string
+    required:
+    - password
+    - usernameOrEmail
+    type: object
+  hyacinth-backend_api_v1.LoginResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/hyacinth-backend_api_v1.LoginResponseData'
+      message:
+        type: string
+    type: object
+  hyacinth-backend_api_v1.LoginResponseData:
     properties:
       accessToken:
         type: string
     type: object
-  github_com_go-nunu_nunu-layout-advanced_api_v1.RegisterRequest:
+  hyacinth-backend_api_v1.PurchasePackageRequest:
     properties:
-      email:
-        example: 1234@gmail.com
-        type: string
-      password:
-        example: "123456"
-        type: string
+      duration:
+        description: 购买时长（月数），1-12个月
+        example: 1
+        maximum: 12
+        minimum: 1
+        type: integer
+      packageType:
+        description: 2=青铜 3=白银 4=黄金
+        example: 2
+        maximum: 4
+        minimum: 2
+        type: integer
     required:
-    - email
-    - password
+    - packageType
     type: object
-  github_com_go-nunu_nunu-layout-advanced_api_v1.Response:
+  hyacinth-backend_api_v1.PurchasePackageResponse:
     properties:
       code:
         type: integer
@@ -62,7 +225,31 @@ definitions:
       message:
         type: string
     type: object
-  github_com_go-nunu_nunu-layout-advanced_api_v1.UpdateProfileRequest:
+  hyacinth-backend_api_v1.RegisterRequest:
+    properties:
+      email:
+        example: 1234@gmail.com
+        type: string
+      password:
+        example: "123456"
+        type: string
+      username:
+        example: alan
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  hyacinth-backend_api_v1.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  hyacinth-backend_api_v1.UpdateProfileRequest:
     properties:
       email:
         example: 1234@gmail.com
@@ -72,6 +259,40 @@ definitions:
         type: string
     required:
     - email
+    type: object
+  hyacinth-backend_api_v1.UpdateVnetRequest:
+    properties:
+      clientsLimit:
+        example: 10
+        type: integer
+      comment:
+        example: 我的虚拟网络
+        type: string
+      enableDHCP:
+        example: true
+        type: boolean
+      enabled:
+        example: true
+        type: boolean
+      ipRange:
+        example: 192.168.1.0/24
+        type: string
+      password:
+        example: "1234"
+        type: string
+      token:
+        example: "1234"
+        type: string
+      vnetId:
+        example: "1234"
+        type: string
+    type: object
+  hyacinth-backend_api_v1.UsageData:
+    properties:
+      date:
+        type: string
+      usage:
+        type: integer
     type: object
 host: localhost:8000
 info:
@@ -91,20 +312,21 @@ paths:
     post:
       consumes:
       - application/json
+      description: 用户登录接口，支持邮箱或用户名登录
       parameters:
-      - description: params
+      - description: 登录请求参数
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.LoginRequest'
+          $ref: '#/definitions/hyacinth-backend_api_v1.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.LoginResponse'
+            $ref: '#/definitions/hyacinth-backend_api_v1.LoginResponse'
       summary: 账号登录
       tags:
       - 用户模块
@@ -112,35 +334,67 @@ paths:
     post:
       consumes:
       - application/json
-      description: 目前只支持邮箱登录
+      description: 用户注册接口，需要提供用户名、邮箱和密码
       parameters:
-      - description: params
+      - description: 注册请求参数
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.RegisterRequest'
+          $ref: '#/definitions/hyacinth-backend_api_v1.RegisterRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.Response'
+            $ref: '#/definitions/hyacinth-backend_api_v1.Response'
       summary: 用户注册
+      tags:
+      - 用户模块
+  /usage:
+    get:
+      consumes:
+      - application/json
+      description: 获取用户在指定时间范围内的流量使用量统计数据
+      parameters:
+      - description: 用户ID，可选
+        in: query
+        name: userId
+        type: string
+      - description: 虚拟网络ID，可选，空值表示所有虚拟网络
+        in: query
+        name: vnetId
+        type: string
+      - description: 时间范围：24h(24小时), 7d(7天), 30d(30天), month(按月), all(全部)
+        in: query
+        name: range
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/hyacinth-backend_api_v1.GetUsageResponse'
+      security:
+      - Bearer: []
+      summary: 获取用户流量使用量
       tags:
       - 用户模块
   /user:
     get:
       consumes:
       - application/json
+      description: 获取当前登录用户的详细信息，包括用户基本信息、活跃隧道数、在线设备数等
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponse'
+            $ref: '#/definitions/hyacinth-backend_api_v1.GetProfileResponse'
       security:
       - Bearer: []
       summary: 获取用户信息
@@ -149,25 +403,199 @@ paths:
     put:
       consumes:
       - application/json
+      description: 修改用户的基本信息，包括用户名和邮箱
       parameters:
-      - description: params
+      - description: 修改用户信息请求参数
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.UpdateProfileRequest'
+          $ref: '#/definitions/hyacinth-backend_api_v1.UpdateProfileRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.Response'
+            $ref: '#/definitions/hyacinth-backend_api_v1.Response'
       security:
       - Bearer: []
       summary: 修改用户信息
       tags:
       - 用户模块
+  /user/group:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的组信息，用于商城套餐显示
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/hyacinth-backend_api_v1.GetUserGroupResponse'
+      security:
+      - Bearer: []
+      summary: 获取用户组信息
+      tags:
+      - 用户模块
+  /user/password:
+    put:
+      consumes:
+      - application/json
+      description: 修改用户密码，需要验证当前密码
+      parameters:
+      - description: 修改密码请求参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/hyacinth-backend_api_v1.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/hyacinth-backend_api_v1.Response'
+      security:
+      - Bearer: []
+      summary: 修改密码
+      tags:
+      - 用户模块
+  /user/purchase:
+    post:
+      consumes:
+      - application/json
+      description: 购买增值服务套餐，传入套餐号(2=青铜,3=白银,4=黄金)和购买时长(1-12个月)
+      parameters:
+      - description: 购买套餐请求参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/hyacinth-backend_api_v1.PurchasePackageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/hyacinth-backend_api_v1.PurchasePackageResponse'
+      security:
+      - Bearer: []
+      summary: 购买增值服务套餐
+      tags:
+      - 用户模块
+  /vnet:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的所有虚拟网络
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/hyacinth-backend_api_v1.GetVnetByUserIdResponse'
+      security:
+      - Bearer: []
+      summary: 获取用户的虚拟网络列表
+      tags:
+      - 虚拟网络模块
+    post:
+      consumes:
+      - application/json
+      description: 为当前用户创建新的虚拟网络
+      parameters:
+      - description: 创建虚拟网络请求参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/hyacinth-backend_api_v1.CreateVnetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/hyacinth-backend_api_v1.Response'
+      security:
+      - Bearer: []
+      summary: 创建虚拟网络
+      tags:
+      - 虚拟网络模块
+  /vnet/{vnetId}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除用户的虚拟网络
+      parameters:
+      - description: 虚拟网络ID，用于标识要删除的虚拟网络
+        in: path
+        name: vnetId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/hyacinth-backend_api_v1.Response'
+      security:
+      - Bearer: []
+      summary: 删除虚拟网络
+      tags:
+      - 虚拟网络模块
+    put:
+      consumes:
+      - application/json
+      description: 更新用户的虚拟网络配置
+      parameters:
+      - description: 虚拟网络ID，用于标识要更新的虚拟网络
+        in: path
+        name: vnetId
+        required: true
+        type: string
+      - description: 更新虚拟网络请求参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/hyacinth-backend_api_v1.UpdateVnetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/hyacinth-backend_api_v1.Response'
+      security:
+      - Bearer: []
+      summary: 更新虚拟网络
+      tags:
+      - 虚拟网络模块
+  /vnet/limit:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的虚拟网络限制和使用情况
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/hyacinth-backend_api_v1.GetVNetLimitInfoResponse'
+      security:
+      - Bearer: []
+      summary: 获取用户的虚拟网络限制信息
+      tags:
+      - 虚拟网络模块
 securityDefinitions:
   Bearer:
     in: header

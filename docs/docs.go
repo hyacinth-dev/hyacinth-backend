@@ -26,6 +26,7 @@ const docTemplate = `{
     "paths": {
         "/login": {
             "post": {
+                "description": "用户登录接口，支持邮箱或用户名登录",
                 "consumes": [
                     "application/json"
                 ],
@@ -38,12 +39,12 @@ const docTemplate = `{
                 "summary": "账号登录",
                 "parameters": [
                     {
-                        "description": "params",
+                        "description": "登录请求参数",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.LoginRequest"
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.LoginRequest"
                         }
                     }
                 ],
@@ -51,7 +52,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.LoginResponse"
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.LoginResponse"
                         }
                     }
                 }
@@ -59,7 +60,7 @@ const docTemplate = `{
         },
         "/register": {
             "post": {
-                "description": "目前只支持邮箱登录",
+                "description": "用户注册接口，需要提供用户名、邮箱和密码",
                 "consumes": [
                     "application/json"
                 ],
@@ -72,12 +73,12 @@ const docTemplate = `{
                 "summary": "用户注册",
                 "parameters": [
                     {
-                        "description": "params",
+                        "description": "注册请求参数",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.RegisterRequest"
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.RegisterRequest"
                         }
                     }
                 ],
@@ -85,7 +86,56 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.Response"
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/usage": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取用户在指定时间范围内的流量使用量统计数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户模块"
+                ],
+                "summary": "获取用户流量使用量",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID，可选",
+                        "name": "userId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "虚拟网络ID，可选，空值表示所有虚拟网络",
+                        "name": "vnetId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "时间范围：24h(24小时), 7d(7天), 30d(30天), month(按月), all(全部)",
+                        "name": "range",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.GetUsageResponse"
                         }
                     }
                 }
@@ -98,6 +148,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
+                "description": "获取当前登录用户的详细信息，包括用户基本信息、活跃隧道数、在线设备数等",
                 "consumes": [
                     "application/json"
                 ],
@@ -112,7 +163,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponse"
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.GetProfileResponse"
                         }
                     }
                 }
@@ -123,6 +174,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
+                "description": "修改用户的基本信息，包括用户名和邮箱",
                 "consumes": [
                     "application/json"
                 ],
@@ -135,12 +187,12 @@ const docTemplate = `{
                 "summary": "修改用户信息",
                 "parameters": [
                     {
-                        "description": "params",
+                        "description": "修改用户信息请求参数",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.UpdateProfileRequest"
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.UpdateProfileRequest"
                         }
                     }
                 ],
@@ -148,7 +200,287 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.Response"
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/group": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取当前用户的组信息，用于商城套餐显示",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户模块"
+                ],
+                "summary": "获取用户组信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.GetUserGroupResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/password": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "修改用户密码，需要验证当前密码",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户模块"
+                ],
+                "summary": "修改密码",
+                "parameters": [
+                    {
+                        "description": "修改密码请求参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.ChangePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/purchase": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "购买增值服务套餐，传入套餐号(2=青铜,3=白银,4=黄金)和购买时长(1-12个月)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户模块"
+                ],
+                "summary": "购买增值服务套餐",
+                "parameters": [
+                    {
+                        "description": "购买套餐请求参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.PurchasePackageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.PurchasePackageResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/vnet": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取当前用户的所有虚拟网络",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "虚拟网络模块"
+                ],
+                "summary": "获取用户的虚拟网络列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.GetVnetByUserIdResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "为当前用户创建新的虚拟网络",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "虚拟网络模块"
+                ],
+                "summary": "创建虚拟网络",
+                "parameters": [
+                    {
+                        "description": "创建虚拟网络请求参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.CreateVnetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/vnet/limit": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取当前用户的虚拟网络限制和使用情况",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "虚拟网络模块"
+                ],
+                "summary": "获取用户的虚拟网络限制信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.GetVNetLimitInfoResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/vnet/{vnetId}": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "更新用户的虚拟网络配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "虚拟网络模块"
+                ],
+                "summary": "更新虚拟网络",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "虚拟网络ID，用于标识要更新的虚拟网络",
+                        "name": "vnetId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新虚拟网络请求参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.UpdateVnetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "删除用户的虚拟网络",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "虚拟网络模块"
+                ],
+                "summary": "删除虚拟网络",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "虚拟网络ID，用于标识要删除的虚拟网络",
+                        "name": "vnetId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/hyacinth-backend_api_v1.Response"
                         }
                     }
                 }
@@ -156,64 +488,294 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponse": {
+        "hyacinth-backend_api_v1.ChangePasswordRequest": {
+            "type": "object",
+            "required": [
+                "currentPassword",
+                "newPassword"
+            ],
+            "properties": {
+                "currentPassword": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "newPassword": {
+                    "type": "string",
+                    "example": "654321"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.CreateVnetRequest": {
+            "type": "object",
+            "properties": {
+                "clientsLimit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "我的虚拟网络"
+                },
+                "enableDHCP": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "enabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "ipRange": {
+                    "type": "string",
+                    "example": "192.168.1.0/24"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "1234"
+                },
+                "token": {
+                    "type": "string",
+                    "example": "1234"
+                },
+                "vnetId": {
+                    "type": "string",
+                    "example": "1234"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.GetProfileResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponseData"
+                    "$ref": "#/definitions/hyacinth-backend_api_v1.GetProfileResponseData"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponseData": {
-            "type": "object",
-            "properties": {
-                "username": {
-                    "type": "string",
-                    "example": "alan"
-                },
-                "userId": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.LoginRequest": {
+        "hyacinth-backend_api_v1.GetProfileResponseData": {
             "type": "object",
             "required": [
-                "email",
-                "password"
+                "email"
             ],
             "properties": {
+                "activeTunnels": {
+                    "type": "integer"
+                },
+                "availableTraffic": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string",
                     "example": "1234@gmail.com"
                 },
-                "password": {
+                "isVip": {
+                    "type": "boolean"
+                },
+                "onlineDevices": {
+                    "type": "integer"
+                },
+                "privilegeExpiry": {
+                    "type": "string"
+                },
+                "userGroup": {
+                    "type": "integer"
+                },
+                "userGroupName": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string",
-                    "example": "123456"
+                    "example": "alan"
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.LoginResponse": {
+        "hyacinth-backend_api_v1.GetUsageResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.LoginResponseData"
+                    "$ref": "#/definitions/hyacinth-backend_api_v1.GetUsageResponseData"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.LoginResponseData": {
+        "hyacinth-backend_api_v1.GetUsageResponseData": {
+            "type": "object",
+            "properties": {
+                "usages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hyacinth-backend_api_v1.UsageData"
+                    }
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.GetUserGroupResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/hyacinth-backend_api_v1.GetUserGroupResponseData"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.GetUserGroupResponseData": {
+            "type": "object",
+            "properties": {
+                "userGroup": {
+                    "type": "integer"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.GetVNetLimitInfoResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/hyacinth-backend_api_v1.GetVNetLimitInfoResponseData"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.GetVNetLimitInfoResponseData": {
+            "type": "object",
+            "properties": {
+                "currentCount": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "maxClientsLimitPerVNet": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "maxLimit": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "userGroup": {
+                    "type": "integer",
+                    "example": 3
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.GetVnetByUserIdResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/hyacinth-backend_api_v1.GetVnetResponseData"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.GetVnetByUserIdResponseItem": {
+            "type": "object",
+            "properties": {
+                "clientsLimit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "clientsOnline": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "我的虚拟网络"
+                },
+                "enableDHCP": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "enabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "ipRange": {
+                    "type": "string",
+                    "example": "192.168.1.0/24"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "1234"
+                },
+                "token": {
+                    "type": "string",
+                    "example": "1234"
+                },
+                "vnetId": {
+                    "type": "string",
+                    "example": "1234"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.GetVnetResponseData": {
+            "type": "object",
+            "properties": {
+                "vnets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hyacinth-backend_api_v1.GetVnetByUserIdResponseItem"
+                    }
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.LoginRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "usernameOrEmail"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "usernameOrEmail": {
+                    "type": "string",
+                    "example": "1234@gmail.com"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/hyacinth-backend_api_v1.LoginResponseData"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.LoginResponseData": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -221,24 +783,29 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.RegisterRequest": {
+        "hyacinth-backend_api_v1.PurchasePackageRequest": {
             "type": "object",
             "required": [
-                "email",
-                "password"
+                "packageType"
             ],
             "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "1234@gmail.com"
+                "duration": {
+                    "description": "购买时长（月数），1-12个月",
+                    "type": "integer",
+                    "maximum": 12,
+                    "minimum": 1,
+                    "example": 1
                 },
-                "password": {
-                    "type": "string",
-                    "example": "123456"
+                "packageType": {
+                    "description": "2=青铜 3=白银 4=黄金",
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 2,
+                    "example": 2
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.Response": {
+        "hyacinth-backend_api_v1.PurchasePackageResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -250,7 +817,41 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.UpdateProfileRequest": {
+        "hyacinth-backend_api_v1.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "1234@gmail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "alan"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.UpdateProfileRequest": {
             "type": "object",
             "required": [
                 "email"
@@ -263,6 +864,54 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "alan"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.UpdateVnetRequest": {
+            "type": "object",
+            "properties": {
+                "clientsLimit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "我的虚拟网络"
+                },
+                "enableDHCP": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "enabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "ipRange": {
+                    "type": "string",
+                    "example": "192.168.1.0/24"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "1234"
+                },
+                "token": {
+                    "type": "string",
+                    "example": "1234"
+                },
+                "vnetId": {
+                    "type": "string",
+                    "example": "1234"
+                }
+            }
+        },
+        "hyacinth-backend_api_v1.UsageData": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "usage": {
+                    "type": "integer"
                 }
             }
         }
